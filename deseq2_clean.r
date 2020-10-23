@@ -3,6 +3,16 @@ suppressMessages(library("pasilla"))
 library(ggplot2)
 library(ggfortify)
 library(EnhancedVolcano)
+library("org.Dm.eg.db")
+library(data.table)
+library(dplyr)
+library(annotate)
+source("./geneID_converter.r", local=TRUE)
+
+
+# Set database to work with
+gene_ID_database <- toTable(org.Dm.egFLYBASE)
+gene_ID_database_name <- "flybase"
 
 # loading harman normalized and batch corrected data
 cts_df <- read.csv("afterbatchtable_geneNameAdded.csv", row.names=1, stringsAsFactors=FALSE)
@@ -16,6 +26,11 @@ for (i in cols_convert)
 {
   cts_df[[i]] <- as.numeric(cts_df[[i]])
 }
+
+
+cts_filtered_adults <- cts_df[,c("C8fA.1","C8fA.2","C8fA.3","C8fA.4","C8mA.1","C8mA.2","C8mA.3","C8mA.4",
+                                "C9fA.1","C9fA.2","C9fA.3","C9fA.4","C9mA.1","C9mA.2","C9mA.3","C9mA.4",
+                                "C10fA.1","C10fA.2","C10fA.3","C10fA.4","C10mA.1","C10mA.2","C10mA.3","C10mA.4")]
 
 # first remember the names
 gene_n <- rownames(cts_df)
@@ -41,6 +56,30 @@ autoplot(pca_res) + labs(title = "PCA Plot for Normalized and Batched Corrected 
 dev.off()
 png(file="pca_plot_harman_labeled.png", width=900, height=600, res=125)
 autoplot(pca_res, data = cts_condname, colour = 'condition', label = TRUE, label.size = 3) + labs(title = "PCA Plot for Normalized and Batched Corrected Read Counts using Harman")
+dev.off()
+
+# first remember the names
+gene_n2 <- rownames(cts_filtered_adults)
+
+# transpose
+cts_filtered_adults <- as.data.frame(t(cts_filtered_adults))
+colnames(cts_filtered_adults) <- gene_n2
+
+# set condition column
+conds_adults = cts_filtered_adults
+conds_adults$condition = rownames(cts_filtered_adults)
+conds_adults$condition <- gsub("\\.\\d", "", conds_adults$condition)
+conds_adults$condition <- gsub("f", "", conds_adults$condition)
+conds_adults$condition <- gsub("m", "", conds_adults$condition)
+conds_adults$condition
+
+cts_filtered_adults <- cts_filtered_adults[ , which(apply(cts_filtered_adults, 2, var) != 0)]
+pca_filtered_adults <- prcomp(cts_filtered_adults, scale. = TRUE)
+png(file="pca_plot_harmannorm_adults.png", width=600, height=400)
+autoplot(pca_filtered_adults) + labs(title = "PCA Plot for Adult Normalized and Batched Corrected Read Counts using Harman")
+dev.off()
+png(file="pca_plot_harmannorm_labeled_adults.png", width=900, height=600, res=125)
+autoplot(pca_filtered_adults, data = conds_adults, colour = 'condition', label = TRUE, label.size = 3) + labs(title = "PCA Plot for Adult Normalized and Batched Corrected Read Counts using Harman")
 dev.off()
 
 # loading csv again
@@ -153,6 +192,10 @@ for (i in cols_convert2)
   cts_df_un[[i]] <- as.numeric(cts_df_un[[i]])
 }
 
+cts_filtered_adults <- cts_df_un[,c("C8fA.1","C8fA.2","C8fA.3","C8fA.4","C8mA.1","C8mA.2","C8mA.3","C8mA.4",
+                                "C9fA.1","C9fA.2","C9fA.3","C9fA.4","C9mA.1","C9mA.2","C9mA.3","C9mA.4",
+                                "C10fA.1","C10fA.2","C10fA.3","C10fA.4","C10mA.1","C10mA.2","C10mA.3","C10mA.4")]
+
 # first remember the names
 gene_n2 <- rownames(cts_df_un)
 
@@ -170,12 +213,44 @@ png(file="pca_plot_unnorm_labeled.png", width=900, height=600, res=125)
 autoplot(pca_res_un, data = cts_condname, colour = 'condition', label = TRUE, label.size = 3) + labs(title = "PCA Plot for Un-Normalized and Non-Batched Corrected Read Counts")
 dev.off()
 
+# first remember the names
+gene_n2 <- rownames(cts_filtered_adults)
+
+# transpose
+cts_filtered_adults <- as.data.frame(t(cts_filtered_adults))
+colnames(cts_filtered_adults) <- gene_n2
+
+# set condition column
+conds_adults = cts_filtered_adults
+conds_adults$condition = rownames(cts_filtered_adults)
+conds_adults$condition <- gsub("\\.\\d", "", conds_adults$condition)
+conds_adults$condition <- gsub("f", "", conds_adults$condition)
+conds_adults$condition <- gsub("m", "", conds_adults$condition)
+conds_adults$condition
+
+print('hi')
+conds_adults$condition[0:2]
+cts_filtered_adults[0:2]
+cts_filtered_adults <- cts_filtered_adults[ , which(apply(cts_filtered_adults, 2, var) != 0)]
+pca_filtered_adults <- prcomp(cts_filtered_adults, scale. = TRUE)
+png(file="pca_plot_unnorm_adults.png", width=600, height=400)
+autoplot(pca_filtered_adults) + labs(title = "PCA Plot for Adult Un-Normalized and Non-Batched Corrected Read Counts")
+dev.off()
+png(file="pca_plot_unnorm_labeled_adults.png", width=900, height=600, res=125)
+autoplot(pca_filtered_adults, data = conds_adults, colour = 'condition', label = TRUE, label.size = 3) + labs(title = "PCA Plot for Adult Un-Normalized and Non-Batched Corrected Read Counts")
+dev.off()
+
 all_samples <- read.csv("metadata_allSamples.csv", row.names=1)
 ddsx <- DESeqDataSetFromMatrix(countData = cts_mat_un, colData = all_samples, design = ~ condition) # + batch
 dds_temp1 <- estimateSizeFactors(ddsx)
 dds_temp2 <- counts(dds_temp1, normalized=TRUE)
 
 write.csv(dds_temp2, file="normalized_counts.csv")
+
+
+cts_filtered_adults <- dds_temp2[,c("C8fA.1","C8fA.2","C8fA.3","C8fA.4","C8mA.1","C8mA.2","C8mA.3","C8mA.4",
+                                "C9fA.1","C9fA.2","C9fA.3","C9fA.4","C9mA.1","C9mA.2","C9mA.3","C9mA.4",
+                                "C10fA.1","C10fA.2","C10fA.3","C10fA.4","C10mA.1","C10mA.2","C10mA.3","C10mA.4")]
 
 # first remember the names
 gene_n22 <- rownames(dds_temp2)
@@ -191,6 +266,22 @@ autoplot(pca_res_deseqnorm) + labs(title = "PCA Plot for Normalized Read Counts 
 dev.off()
 png(file="pca_plot_deseqnorm_labeled.png", width=900, height=600, res=125)
 autoplot(pca_res_deseqnorm, data = cts_condname, colour = 'condition', label = TRUE, label.size = 3) + labs(title = "PCA Plot for Normalized Read Counts using DESeq2 Method")
+dev.off()
+
+# first remember the names
+gene_n22 <- rownames(cts_filtered_adults)
+
+# transpose
+cts_filtered_adults <- as.data.frame(t(cts_filtered_adults))
+colnames(cts_filtered_adults) <- gene_n22
+
+cts_filtered_adults <- cts_filtered_adults[ , which(apply(cts_filtered_adults, 2, var) != 0)]
+pca_filtered_adults <- prcomp(cts_filtered_adults, scale. = TRUE)
+png(file="pca_plot_deseqnorm_adults.png", width=600, height=400)
+autoplot(pca_filtered_adults) + labs(title = "PCA Plot for Adult Normalized Read Counts using DESeq2 Method")
+dev.off()
+png(file="pca_plot_deseqnorm_labeled_adults.png", width=900, height=600, res=125)
+autoplot(pca_filtered_adults, data = conds_adults, colour = 'condition', label = TRUE, label.size = 3) + labs(title = "PCA Plot for Adult Normalized Read Counts using DESeq2 Method")
 dev.off()
 
 
@@ -243,8 +334,14 @@ pdf("volcano_plot_isaacdeseq2_pvalfiltered_unnorm.pdf", width = 15, height = 15)
 res1 = results(dds, contrast = c('condition', 'elavGRFP_e', 'cRNAi_e'))
 resNorm_no_padj1 <- lfcShrink(dds, contrast = c('condition', 'elavGRFP_e', 'cRNAi_e'), res=res1, type="normal") # coef=1 is elav_gfp vs rnai 
 resNorm1 <- resNorm_no_padj1[which(resNorm_no_padj1$padj < 0.01),]
-EnhancedVolcano(resNorm_no_padj1, 
-                lab = rownames(resNorm_no_padj1), 
+# Adding gene symbol and placing it in the front for no and normal shrinkage matricies
+ids.type  <- gene_ID_database_name
+idsN <- rownames(resNorm1)
+resNorm1['gene_id'] <- rownames(resNorm1)
+resNorm1$gene_name <- as.vector(get.symbolIDsDm(idsN,ids.type))
+res_sym_front <- as.data.frame(resNorm1) %>% dplyr::select(gene_name, gene_id, everything())  
+EnhancedVolcano(res_sym_front, 
+                lab = res_sym_front$gene_name, 
                 x = 'log2FoldChange', 
                 y = 'padj', 
                 xlim = c(-5, 5),
@@ -252,7 +349,7 @@ EnhancedVolcano(resNorm_no_padj1,
                 pCutoff = 0.01,
                 FCcutoff = 0,
                 pointSize = 3.0,
-                labSize = 3.0,
+                labSize = 6.0,
                 title = "Volcano Plot for Un-Normalized Read Counts Adjusted by DESeq2 Normalization")
 dev.off()
 
@@ -260,13 +357,19 @@ dev.off()
 
 pdf("volcano_plot_ashleydebrowser_pvalfiltered.pdf", width = 15, height = 15)
 resNorm_no_padj11 <- as.data.frame(read.csv("combined_clampi_e.csv", row.names=1, stringsAsFactors=FALSE))
-EnhancedVolcano(resNorm_no_padj11, 
-                lab = rownames(resNorm_no_padj11), 
+# Adding gene symbol and placing it in the front for no and normal shrinkage matricies
+ids.type  <- gene_ID_database_name
+idsN <- rownames(resNorm_no_padj11)
+resNorm_no_padj11['gene_id'] <- rownames(resNorm_no_padj11)
+resNorm_no_padj11$gene_name <- as.vector(get.symbolIDsDm(idsN,ids.type))
+res_sym_front <- as.data.frame(resNorm_no_padj11) %>% dplyr::select(gene_name, gene_id, everything())  
+EnhancedVolcano(res_sym_front, 
+                lab = res_sym_front$gene_name, 
                 x = 'log2FoldChange', 
                 y = 'padj',
                 pCutoff = 0.01,
                 FCcutoff = 0,
                 pointSize = 3.0,
-                labSize = 3.0,
+                labSize = 6.0,
                 title = "Volcano Plot for DEBrowser Fold Changes")
 dev.off()
