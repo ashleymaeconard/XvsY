@@ -1,7 +1,7 @@
 # deseq2_comparison.r
 # Purpose: run DESeq2 in case vs. control conditions
 # Input: 1) metadata file, 2) count matrix file, 3) desired output directory, 4) condition name, and are there 5) batch effects or 6) time components for the experiment set at 7) adj. p-value threshold  
-# Output: 1) MA plots (normal and no shrinkage), 2) venn diagram of LRT vs. Wald test (no shrinkage), 3) clustermap differentially expressed gene .csv (normal and no shrinkage), 4) DESeq2 differentially expressed gene output .csv (normal and no shrinkage)
+# Output: 1) MA plots (normal and no shrinkage), 2) venn diagram of LRT vs. Wald test (no shrinkage), 3) clustermap differentially expressed gene .csv (normal and no shrinkage), 4) DESeq2 differentially expressed gene output .csvs (normal and no shrinkage) for differentially expressed genes and all genes
 # Last Mod: Nov. 19, 2010
 # Ashley Conard
 
@@ -150,29 +150,39 @@ main <- function(){
         write("ERROR: row names for metaData do not match column names for countData.", stderr())
     }
     
-    # Set reference level for case control comparison
-    dds$condition <- relevel(dds$condition, ref = CONTROL)
-
+    
     # Create DESeq2 object and run DESeq2
     # Examine influence of condition (normally what DESeq2 is used for - case vs. control, no time)
     if(BATCH_EFFECT & !TC & CASEvsCONT){ # batch effect and condition
         write("Batch effect and case vs. control", stderr())
         dds <- DESeqDataSetFromMatrix(countData = countData, colData = metaData, design = ~ batch + condition) 
-        ddsW <- DESeq(dds, test="Wald", betaPrior=TRUE, reduced= ~ batch)
+        
+        # Set reference level for case control comparison
+        dds$condition <- relevel(dds$condition, ref = CONTROL)
+
+        ddsW <- DESeq(dds, test="Wald", betaPrior=TRUE)
         ddsLRT <- DESeq(dds, test="LRT", reduced= ~ batch)
     
     # Examine influence of condition without batch effects (normally what DESeq2 is used for - case vs. control, no time)
     } else if(!BATCH_EFFECT & !TC & CASEvsCONT){ 
         write("Case vs. control", stderr())
         dds <- DESeqDataSetFromMatrix(countData = countData, colData = metaData, design = ~ condition)
-        ddsW <- DESeq(dds, test="Wald", betaPrior=TRUE, reduced= ~1)
+        
+        # Set reference level for case control comparison
+        dds$condition <- relevel(dds$condition, ref = CONTROL)
+        
+        ddsW <- DESeq(dds, test="Wald", betaPrior=TRUE)
         ddsLRT <- DESeq(dds, test="LRT", reduced= ~1)
         
     # Examine influence of batch effect
     } else if(BATCH_EFFECT & !TC & !CASEvsCONT){
         write("Batch effect", stderr())
         dds <- DESeqDataSetFromMatrix(countData = countData, colData = metaData, design = ~ batch)
-        ddsW <- DESeq(dds, test="Wald", betaPrior=TRUE, reduced= ~1)
+        
+        # Set reference level for case control comparison
+        dds$condition <- relevel(dds$condition, ref = CONTROL)
+        
+        ddsW <- DESeq(dds, test="Wald", betaPrior=TRUE)
         ddsLRT <- DESeq(dds, test="LRT", reduced= ~1)
     
     # Error
@@ -185,16 +195,17 @@ main <- function(){
     resW <- res_no_padjW[which(res_no_padjW$padj < PVAL_THRESH),]
     
     res_no_padjLRT <- results(ddsLRT)
-    reslRT <- res_no_padjLRT[which(res_no_padjLRT$padj < PVAL_THRESH),]
+    resLRT <- res_no_padjLRT[which(res_no_padjLRT$padj < PVAL_THRESH),]
     
     # Performing normal shrinkage transformation
-    resNorm_no_padjW <- lfcShrink(ddsW, coef=3, type="normal") # coef=3 is treatment_odor_vs_etoh  
-    resNormW <- resNorm_no_padjW[which(resNorm_no_padjW$padj < PVAL_THRESH),]
+    # lfcShrink() should be used downstream of DESeq() with betaPrior=FALSE (the default)
+    #resNorm_no_padjW <- lfcShrink(ddsW, coef=3, type="normal") # coef=3 is treatment_odor_vs_etoh  
+    #resNormW <- resNorm_no_padjW[which(resNorm_no_padjW$padj < PVAL_THRESH),]
     
-    resNorm_no_padjLRT <- lfcShrink(ddsLRT, coef=3, type="normal") # coef=3 is treatment_odor_vs_etoh  
+    resNorm_no_padjLRT <- lfcShrink(ddsLRT, coef=2, type="normal") # coef=3 is treatment_odor_vs_etoh  
     resNormLRT <- resNorm_no_padjLRT[which(resNorm_no_padjLRT$padj < PVAL_THRESH),]
 
-    # Comparing LRT and Wald test
+    # Comparing LRT and Wald test with Venn Diagram
     # Reference: https://cran.r-project.org/web/packages/nVennR/vignettes/nVennR.html
     #            https://thenode.biologists.com/venn-euler-upset-visualize-overlaps-in-datasets/education/
     dfresW <- cbind(IDName = rownames(resW), resW)
@@ -203,18 +214,17 @@ main <- function(){
     dfresLRT <- cbind(IDName = rownames(resLRT), resLRT)
     rownames(dfresLRT) <- 1:nrow(dfresLRT)
     
-    venn.diagram( x = list( as.list(dfresW.IDName),  as.list(dfresLRT.IDName)), category.names = c("W_DEG" , "LRT_DEG"), filename = paste(FULL_OUTDIR,'venn_wald_LRT.png', output=TRUE))
-    
+    venn.diagram( x = list(as.list(dfresW[["IDName"]]),  as.list(dfresLRT[["IDName"]])), category.names = c("W_DEG" , "LRT_DEG"),filename = paste(FULL_OUTDIR,'venn_wald_LRT.png', sep="/"), output=TRUE) 
     
     # Saving MA plots before and after shrinkage
     pdf(paste(FULL_OUTDIR,paste('ma_plot_noShrinkage_padj_Wald',toString(PVAL_THRESH),'.pdf',sep=""),sep="/"))
     plotMA(resW, ylim=c(-4,4), cex=.8)
     abline(h=c(-1,1), col="dodgerblue", lwd=2)
     dev.off()
-    pdf(paste(FULL_OUTDIR,paste('ma_plot_normalShrinkage_padj_Wald',toString(PVAL_THRESH),'.pdf',sep=""), sep="/"))
-    plotMA(resNormW, ylim=c(-4,4), cex=.8)
-    abline(h=c(-1,1), col="dodgerblue", lwd=2)
-    dev.off()
+#     pdf(paste(FULL_OUTDIR,paste('ma_plot_normalShrinkage_padj_Wald',toString(PVAL_THRESH),'.pdf',sep=""), sep="/"))
+#     plotMA(resNormW, ylim=c(-4,4), cex=.8)
+#     abline(h=c(-1,1), col="dodgerblue", lwd=2)
+#     dev.off()
     pdf(paste(FULL_OUTDIR,paste('ma_plot_noShrinkage_padj_LRT',toString(PVAL_THRESH),'.pdf',sep=""),sep="/"))
     plotMA(resLRT, ylim=c(-4,4), cex=.8)
     abline(h=c(-1,1), col="dodgerblue", lwd=2)
@@ -227,18 +237,17 @@ main <- function(){
     # Adding gene symbol and placing it in the front for no and normal shrinkage matricies
     ids.type  <- gene_ID_database_name
     idsW <- rownames(resW)
-    idsLRT <- rownames(resW)
-    idsN <- rownames(resNormW)
-    ids <- rownames(resLRT)
-    idsN <- rownames(resNormLRT)
+    idsLRT <- rownames(resLRT)
+    #idsN <- rownames(resNormW)
+    idsNLRT <- rownames(resNormLRT)
     
     resW['gene_id'] <- rownames(resW)
     resW$gene_name <- as.vector(get.symbolIDsDm(idsW,ids.type))
     res_sym_frontW <- as.data.frame(resW) %>% dplyr::select(gene_name, gene_id, everything())    
     
-    resNormW['gene_id'] <- rownames(resNormW)
-    resNormW$gene_name <- as.vector(get.symbolIDsDm(idsNW,ids.type))
-    resN_sym_frontW <- as.data.frame(resNormW) %>% dplyr::select(gene_name, gene_id, everything()) 
+    #resNormW['gene_id'] <- rownames(resNormW)
+    #resNormW$gene_name <- as.vector(get.symbolIDsDm(idsNW,ids.type))
+    #resN_sym_frontW <- as.data.frame(resNormW) %>% dplyr::select(gene_name, gene_id, everything()) 
     
     resLRT['gene_id'] <- rownames(resLRT)
     resLRT$gene_name <- as.vector(get.symbolIDsDm(idsLRT,ids.type))
@@ -252,7 +261,7 @@ main <- function(){
     betasTCW <- coef(ddsW)
     colnames(betasTCW)
     topGenesW <- which(res_sym_frontW$padj < PVAL_THRESH, arr.ind = FALSE) # get indicies for all results
-    topGenesNW <- which(resN_sym_frontW$padj < PVAL_THRESH, arr.ind = FALSE) # get indicies for all results
+    #topGenesNW <- which(resN_sym_frontW$padj < PVAL_THRESH, arr.ind = FALSE) # get indicies for all results
     
     betasTCLRT <- coef(ddsLRT)
     colnames(betasTCLRT)
@@ -261,19 +270,19 @@ main <- function(){
     
     # Generating clustermap no shrinkage matrix (NOTE 1,2,3 removed the batch effect columns)
     batch_colsW <- seq(1,length(unique(metaData$time))-1)
-    matW <- betasTCW[topGenesW, -(batch_cols)]
-    write("batch_cols", stderr())
-    write(batch_cols, stderr())
+    matW <- betasTCW[topGenesW, -(batch_colsW)]
+    write("batch_colsW", stderr())
+    write(batch_colsW, stderr())
     batch_colsLRT <- seq(1,length(unique(metaData$time))-1)
-    matLRT <- betasTCLRT[topGenesLRT, -(batch_cols)]
-    write("batch_cols", stderr())
-    write(batch_cols, stderr())
+    matLRT <- betasTCLRT[topGenesLRT, -(batch_colsLRT)]
+    write("batch_colsLRT", stderr())
+    write(batch_colsLRT, stderr())
     
     # Generating clustermap normal shrinkage matrix (NOTE 1,2,3 removed the batch effect columns)
-    batch_colsW <- seq(1,length(unique(metaData$time)))
-    matNW <- betasTCW[topGenesNW, -batch_cols]
-    batch_colsLRT <- seq(1,length(unique(metaData$time)))
-    matNLRT <- betasTCLRT[topGenesNLRT, -batch_cols]
+    #batch_colsNW <- seq(1,length(unique(metaData$time)))
+    #matNW <- betasTCW[topGenesNW, -batch_cols]
+    batch_colsNLRT <- seq(1,length(unique(metaData$time)))
+    matNLRT <- betasTCLRT[topGenesNLRT, -batch_colsNLRT]
     
     # Adding gene symbol and placing it in the front for clustermap input matricies (no shrinkage)
     df_matW <- as.data.frame(matW)
@@ -285,7 +294,7 @@ main <- function(){
     df_matLRT <- as.data.frame(matLRT)
     idsMLRT <- rownames(df_matLRT)
     df_matLRT['gene_id'] <- idsMLRT
-    df_matLRT$gene_name <- as.vector(get.symbolIDsDm(idsMW,ids.type))
+    df_matLRT$gene_name <- as.vector(get.symbolIDsDm(idsMLRT,ids.type))
     df_mat_sym_frontLRT <- as.data.frame(df_matLRT) %>% dplyr::select(gene_name, gene_id, everything()) 
     
     # Check if NA in gene_name, copy gene_id in its place
@@ -298,11 +307,11 @@ main <- function(){
     }
 
     # Adding gene symbol and placing it in the front for clustermap input matricies (normal shrinkage)
-    df_matNW <- as.data.frame(matNW)
-    idsMNW <- rownames(df_matNW)
-    df_matNW['gene_id'] <- idsMNW
-    df_matNW$gene_name <- as.vector(get.symbolIDsDm(idsMNW,ids.type))
-    df_matN_sym_frontW <- as.data.frame(df_matNW) %>% dplyr::select(gene_name, gene_id, everything()) 
+#     df_matNW <- as.data.frame(matNW)
+#     idsMNW <- rownames(df_matNW)
+#     df_matNW['gene_id'] <- idsMNW
+#     df_matNW$gene_name <- as.vector(get.symbolIDsDm(idsMNW,ids.type))
+#     df_matN_sym_frontW <- as.data.frame(df_matNW) %>% dplyr::select(gene_name, gene_id, everything()) 
     
     df_matNLRT <- as.data.frame(matNLRT)
     idsMNLRT <- rownames(df_matNLRT)
@@ -311,27 +320,30 @@ main <- function(){
     df_matN_sym_frontLRT <- as.data.frame(df_matNLRT) %>% dplyr::select(gene_name, gene_id, everything()) 
 
     # Check if NA in gene_name, copy gene_id in its place
-    if (NA %in% df_matN_sym_frontW$gene_name){
-        df_matN_sym_frontW$gene_name <- ifelse(is.na(df_mat_sym_frontW$gene_name), df_mat_sym_frontW$gene_id, df_mat_sym_frontW$gene_name)
-    }
+#     if (NA %in% df_matN_sym_frontW$gene_name){
+#         df_matN_sym_frontW$gene_name <- ifelse(is.na(df_mat_sym_frontW$gene_name), df_mat_sym_frontW$gene_id, df_mat_sym_frontW$gene_name)
+#     }
     if (NA %in% df_matN_sym_frontLRT$gene_name){
         df_matN_sym_frontLRT$gene_name <- ifelse(is.na(df_mat_sym_frontLRT$gene_name), df_mat_sym_frontLRT$gene_id, df_mat_sym_frontLRT$gene_name)
     }
 
     # Saving sorted (by padj) results
     resSortW <- res_sym_frontW[order(res_sym_frontW$padj),]
-    resSortNormShrW <- resN_sym_frontW[order(resN_sym_frontW$padj),]
+    res_no_padjW_sort <- res_no_padjW[order(res_no_padjW$padj),]
+    #resSortNormShrW <- resN_sym_frontW[order(resN_sym_frontW$padj),]
     
     resSortLRT <- res_sym_frontLRT[order(res_sym_frontLRT$padj),]
+    res_no_padjLRT_sort <- res_no_padjLRT[order(res_no_padjLRT$padj),]
     resSortNormShrLRT <- resN_sym_frontLRT[order(resN_sym_frontLRT$padj),]
     
     write.csv(as.data.frame(resSortW), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_W",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
-    write.csv(as.data.frame(resSortNormShrW), file=paste(FULL_OUTDIR,paste("deseq2_output_normalShrinkage_padj_W",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    write.csv(as.data.frame(res_no_padjW_sort), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_W_allGenes",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    #write.csv(as.data.frame(resSortNormShrW), file=paste(FULL_OUTDIR,paste("deseq2_output_normalShrinkage_padj_W",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
     write.csv(na.omit(df_mat_sym_frontW),paste(FULL_OUTDIR,paste('deseq2_noShrinkage_clustermapInput_padj_W',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
-    write.csv(na.omit(df_matN_sym_frontW),paste(FULL_OUTDIR,paste('deseq2_normalShrinkage_clustermapInput_padj_W',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
-} 
+    #write.csv(na.omit(df_matN_sym_frontW),paste(FULL_OUTDIR,paste('deseq2_normalShrinkage_clustermapInput_padj_W',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
 
     write.csv(as.data.frame(resSortLRT), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_LRT",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    write.csv(as.data.frame(res_no_padjLRT_sort), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_LRT_allGenes",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
     write.csv(as.data.frame(resSortNormShrLRT), file=paste(FULL_OUTDIR,paste("deseq2_output_normalShrinkage_padj_LRT",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
     write.csv(na.omit(df_mat_sym_frontLRT),paste(FULL_OUTDIR,paste('deseq2_noShrinkage_clustermapInput_padj_LRT',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
     write.csv(na.omit(df_matN_sym_frontLRT),paste(FULL_OUTDIR,paste('deseq2_normalShrinkage_clustermapInput_padj_LRT',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
