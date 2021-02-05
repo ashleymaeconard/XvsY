@@ -35,7 +35,7 @@ def main(filename, caseid, reg):
         row_drop_genes_foldchange = np.where(df2['log2FoldChange'] < 0 )[0]
         df2 = df2.drop(df2.index[row_drop_genes_foldchange])
     elif reg == 'all':
-        pass        
+        pass
     if 'chrom' not in df2.columns:
         gene_ids = df2['gene_id'].tolist()
         genes = pd.read_csv(pth+"/gtf_genes.bed", sep="\t", names=['chr', 'start', 'end', 'gene_id', 'score', 'gene_name'])
@@ -89,7 +89,7 @@ def main(filename, caseid, reg):
             ax.text(tick + x_offset, ymin - abs(0.0486*(ymax-ymin)), num,
                     horizontalalignment='center', size='small', color='green', weight='semibold')
 
-    plt.show()
+    #plt.show()
     fig = g.get_figure()
     # pth = filename.split('/')[:-1]
     # pth = '/'.join(pth)
@@ -136,13 +136,13 @@ def main(filename, caseid, reg):
 
     stats_df2 = pd.DataFrame({'t-test p-vals': ttest_lst,
                             'mann-whitney p-vals': mannwhitney_lst,
-                            'ks-test p-vals': kstest_lst}, 
+                            'ks-test p-vals': kstest_lst},
                             index = comparisons_lst)
     stats_df2.rename_axis('comparisons')
     # cmap reds -> darkest red is most significant (closest to 0)
     pval_heatmap = seaborn.heatmap(stats_df2, annot=True, cmap = "Reds_r") #or rocket_r or coolwarm_r
     fig2 = pval_heatmap.get_figure()
-    plt.show(fig2)
+    #plt.show(fig2)
     # fig2.savefig(pth+'/globalXA_'+fn+'_stats_'+reg+'.png')
 
 

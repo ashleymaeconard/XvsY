@@ -2,23 +2,23 @@
 # clusterProfiler.r
 # Last Modified: September 2020 by Isaac Nathoo
 # Runs clusterProfiler to find and visualize gene enrichment within each cluster.
-# References: https://yulab-smu.github.io/clusterProfiler-book/chapter12.html          
+# References: https://yulab-smu.github.io/clusterProfiler-book/chapter12.html
 
-# CHECKING ARGUMENTS 
+# CHECKING ARGUMENTS
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
-  stop("Type: /usr/local/bin/Rscript clusterProfiler.r 
-            1) /PATH/TO/INPUT_OUTPUT_DIR/ (e.g. /timeor/results/primary/<EXPERIM_results/clusters/1/) 
-            2) EXPERIMENT_NAME (e.g. test_results, write 'test') 
-            3) SEPARATE_TIMEPOINTS (set to 1 to run GO for each timepoint separately, 0 otherwise) 
-            4) ORGANISM (dme, hsa, mmu) 
+  stop("Type: /usr/local/bin/Rscript clusterProfiler.r
+            1) /PATH/TO/INPUT_OUTPUT_DIR/ (e.g. /timeor/results/primary/<EXPERIM_results/clusters/1/)
+            2) EXPERIMENT_NAME (e.g. test_results, write 'test')
+            3) SEPARATE_TIMEPOINTS (set to 1 to run GO for each timepoint separately, 0 otherwise)
+            4) ORGANISM (dme, hsa, mmu)
             5) ADJ_PVAL (recommend 0.05)", call.=FALSE)
 } else if (length(args) == 5) {
     cat("Passed in:", args,"\n")
 } else{
-    stop("Pass in 1) /PATH/TO/INPUT_OUTPUT_DIR/ (e.g. /timeor/results/primary/<EXPERIM_results/clusters/1/) 
-                  2) EXPERIMENT_NAME (e.g. test_results, write 'test') 
-                  3) SEPARATE_TIMEPOINTS (set to 1 to run GO for each timepoint separately, 0 otherwise) 
+    stop("Pass in 1) /PATH/TO/INPUT_OUTPUT_DIR/ (e.g. /timeor/results/primary/<EXPERIM_results/clusters/1/)
+                  2) EXPERIMENT_NAME (e.g. test_results, write 'test')
+                  3) SEPARATE_TIMEPOINTS (set to 1 to run GO for each timepoint separately, 0 otherwise)
                   4) ORGANISM (dme (Drosophila melanogaster), hsa (Homo sapiens), mmu (Mus musculus)
                   5) ADJ_PVAL (recommend 0.05))")
 }
@@ -26,7 +26,7 @@ if (length(args)==0) {
 # ASSIGNING INPUT ARGUMENTS
 IN_OUTPUT <- args[1] #e.g. ~/timeor/results/primary/
 EXPERIMENT_NAME <- args[2] # without "_results" added
-SEP_TPS <- args[3] # 0 or 1 
+SEP_TPS <- args[3] # 0 or 1
 ORGANISM <- args[4] # dme (Drosophila melanogaster), hsa (Homo sapiens), mmu (Mus musculus)
 options(digits=5)
 ADJ_PVAL <- as.double(args[5]) # recommend 0.05
@@ -62,7 +62,7 @@ print("Done Loading!")
 assess_enrichment <- function(geneENS, type_enr, keyz){
 
     # GO over-representation (enrichement) test
-    print(geneENS)	
+    print(geneENS)
     ego <- enrichGO(gene        = geneENS,
                     OrgDb         = ORG_DB,
                     keyType       = keyz,
@@ -74,7 +74,7 @@ assess_enrichment <- function(geneENS, type_enr, keyz){
     if(is.null(ego)){
 	df <- data.frame()
 	return(df)
-    }   
+    }
     ego <- setReadable(ego, OrgDb = ORG_DB)
     return(ego)
 }
@@ -98,15 +98,15 @@ generate_plots <- function(egoo, gl, ex, type_enrich, outdir, num_gene_cluster){
     # Checking if the enrichment object is empty, and if so, exit function and script
     if(nrow(egoo)>0){
 
-        # Generating subfolder within specific cluster 
-        subdirec <- file.path(outdir, type_enrich) 
+        # Generating subfolder within specific cluster
+        subdirec <- file.path(outdir, type_enrich)
         if (!dir.exists(subdirec)){
             dir.create(subdirec)
         } else {
             cat(subdirec, "subdirectory exists.")
         }
         # Generate www folder within each subfolder for dotplot rendering in R Shiny
-        wwwsvg_subdirec <- file.path(subdirec, "www") 
+        wwwsvg_subdirec <- file.path(subdirec, "www")
         if (!dir.exists(wwwsvg_subdirec)){
             dir.create(wwwsvg_subdirec)
         } else {
@@ -132,11 +132,11 @@ generate_plots <- function(egoo, gl, ex, type_enrich, outdir, num_gene_cluster){
 	   emapplot(egoo)
 	}, error = function(err) {
 	   barplot(egoo, showCategory=20)
-	})	
+	})
         print(plt_emaplot)
         dev.off()
 
-        # Barplot 
+        # Barplot
         pdf(paste(paste(subdirec, paste(ex, "geneCluster",num_gene_cluster, "clustProf_barplot",paste(type_enrich,".pdf",sep=""), sep="_"), sep="/")), width = 10, height = 10)
         plt_bar<- barplot(egoo, showCategory=10)
         print(plt_bar)
@@ -145,7 +145,7 @@ generate_plots <- function(egoo, gl, ex, type_enrich, outdir, num_gene_cluster){
         # Gene concept network
         pdf(paste(paste(subdirec, paste(ex, "geneCluster",num_gene_cluster, "clustProf_conceptplot",paste(type_enrich,".pdf",sep=""), sep="_"), sep="/")), width = 30, height = 15)
         p2 <- cnetplot(egoo, categorySize="pvalue", foldChange=gl)
-        plt_cnet <- cnetplot(egoo, foldChange=gl, categorySize="pvalue", colorEdge = TRUE) 
+        plt_cnet <- cnetplot(egoo, foldChange=gl, categorySize="pvalue", colorEdge = TRUE)
         plt_cnet_cir <- cnetplot(egoo, foldChange=gl, circular = TRUE, categorySize="pvalue", colorEdge = TRUE)
         plt_concept <- plot_grid(plt_cnet, plt_cnet_cir, ncol=2)
         print(plt_concept)
@@ -180,10 +180,10 @@ main <- function(){
         geneList<-f[,2]
         names(geneList)<- as.character(f[,1])
         geneList<-sort(geneList, decreasing=TRUE)
-        
-        # Reading the gene file for each cluster    
+
+        # Reading the gene file for each cluster
         a <- dput(as.character(f[1][,1]))
-        
+
         # Removing ballgown ID and/or transcript ID if present at end of gene name
         if (grepl("_", a[1])){
             cat("Removing values after and including '_' at end of gene/transcript name\n")
@@ -197,6 +197,13 @@ main <- function(){
 
         # Converting gene names to ensemble and entrezids
         gene = bitr(geneID=xs, fromType="SYMBOL", toType=c("ENSEMBL","ENTREZID"), OrgDb=ORG_DB)
+        if ("FBgn0003996" %in% xs) {
+            print("Adding white gene")
+            gene <- gene[,c("SYMBOL","ENSEMBL","ENTREZID")]
+            bbbbb <- data.frame("w","FBgn0003996","31271")
+            names(bbbbb) <- c("SYMBOL","ENSEMBL","ENTREZID")
+            gene <- rbind(gene,bbbbb)
+        }
         #gene <- gene[,c("SYMBOL","ENSEMBL","ENTREZID")]
         #bbbbb <- data.frame("w","FBgn0003996","31271")
         #names(bbbbb) <- c("SYMBOL","ENSEMBL","ENTREZID")
@@ -217,7 +224,7 @@ main <- function(){
 	    print(gene)
 	    ego <- assess_enrichment(gene$ENSEMBL, types, 'ENSEMBL')
             #ego3 <- assess_GSEA(geneList,type)
-            
+
             print(paste("Plotting",types,"enrichment for", EXPERIMENT_NAME,sep=" "))
 	    if(nrow(ego)==0){
 		    (print(paste("Trying enrichment with ENTREZID ID")))
@@ -225,7 +232,7 @@ main <- function(){
 	    }
             generate_plots(ego, geneList, EXPERIMENT_NAME, types, OUTPUT_DIR, geneNumClust)
         }
-        
+
     }
 }
 

@@ -191,7 +191,7 @@ for (i in cols_convert2)
 {
   cts_df_un[[i]] <- as.numeric(cts_df_un[[i]])
 }
-
+# regex into a list and pass that in to get this
 cts_filtered_adults <- cts_df_un[,c("C8fA.1","C8fA.2","C8fA.3","C8fA.4","C8mA.1","C8mA.2","C8mA.3","C8mA.4",
                                 "C9fA.1","C9fA.2","C9fA.3","C9fA.4","C9mA.1","C9mA.2","C9mA.3","C9mA.4",
                                 "C10fA.1","C10fA.2","C10fA.3","C10fA.4","C10mA.1","C10mA.2","C10mA.3","C10mA.4")]
@@ -231,7 +231,7 @@ conds_adults$condition
 print('hi')
 conds_adults$condition[0:2]
 cts_filtered_adults[0:2]
-cts_filtered_adults <- cts_filtered_adults[ , which(apply(cts_filtered_adults, 2, var) != 0)]
+cts_filtered_adults <- cts_filtered_adults[ , which(apply(cts_filtered_adults, 2, var) != 0)] # find error that caused this...
 pca_filtered_adults <- prcomp(cts_filtered_adults, scale. = TRUE)
 png(file="pca_plot_unnorm_adults.png", width=600, height=400)
 autoplot(pca_filtered_adults) + labs(title = "PCA Plot for Adult Un-Normalized and Non-Batched Corrected Read Counts")
@@ -241,7 +241,10 @@ autoplot(pca_filtered_adults, data = conds_adults, colour = 'condition', label =
 dev.off()
 
 all_samples <- read.csv("metadata_allSamples.csv", row.names=1)
-ddsx <- DESeqDataSetFromMatrix(countData = cts_mat_un, colData = all_samples, design = ~ condition) # + batch
+# url for michael loves answer for pca and normalized counts
+#https://support.bioconductor.org/p/66067/
+#https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html
+ddsx <- DESeqDataSetFromMatrix(countData = cts_mat_un, colData = all_samples, design = ~ condition + batch) # + batch
 dds_temp1 <- estimateSizeFactors(ddsx)
 dds_temp2 <- counts(dds_temp1, normalized=TRUE)
 

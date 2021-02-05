@@ -81,3 +81,5 @@ To generate a summary of the FIMO results as a table showing the percentage of a
 ```bash
 python meme_summary.py -p /PATH/TO/MEME_RESULTS
 ```
+
+![illustration of pipline](https://github.com/ashleymaeconard/clampvsmsl2/blob/develop/workflow_diagram2.PNG?raw=true)
