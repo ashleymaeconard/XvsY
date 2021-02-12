@@ -1,0 +1,49 @@
+path="/data/compbio/inathoo/snakemake_test/test4/"
+
+rule get_ids:
+	input:
+		expand(path+"data")
+	output:
+		directory(expand(path+"deg_sets/gene_ids"))
+	shell:
+		"./scripts/all_csv_to_id.sh {input}"
+
+rule find_intersections:
+	input:
+		expand(path+"deg_sets/gene_ids")
+	output:
+		directory(expand(path+"deg_sets/barPlot"))
+	shell:
+		"intervene upset -i {input}/*.txt --type list --save-overlaps --figtype png -o '{input}/../barPlot'"
+
+rule get_gene:
+	input:
+		expand(path+"deg_sets/gene_ids")
+	output:
+		directory(expand(path+"deg_sets/gene_beds"))
+	shell:
+		"./scripts/all_id_to_gene.sh {input}"
+
+rule make_boxplots:
+	input:
+		expand(path+"deg_sets/gene_beds")
+	output:
+		directory(expand(path+"comparisons/overall_boxplots"))
+	shell:
+		"python /scripts/allBoxPlots.py -f {input}"	
+
+rule make_XAboxplots:
+	input:
+		expand(path+"deg_sets/gene_beds")
+	output:
+		directory(expand(path+"comparisons/xa_boxplots"))
+	shell:
+		"python /scripts/xaBoxPlotsfinal.py -f {input} -s {output}"	
+
+rule global_boxplots:
+	input:
+		expand(path+"data")
+	output:
+		directory(expand(path+"comparisons/global_boxplots"))
+	shell:
+		"python /scripts/global_XAv5.py -f {input} -m []"	

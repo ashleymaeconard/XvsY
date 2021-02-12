@@ -174,7 +174,7 @@ main <- function(){
     if (! length(dir_file)>1){ # check to make sure only one geneList file per cluster
         geneNumClust=(sub(".*_([^.]+)\\.csv.*", "\\1", dir_file))
         OUTPUT_DIR <-paste(dirname(dir_file),'',sep="/")
-
+        print(dir_file)
         # Generating ranked gene list for gene set enrichment analysis (GSEA)
         f <- read.csv(dir_file, sep=",", header = TRUE)
         geneList<-f[,2]

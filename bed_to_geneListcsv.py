@@ -11,9 +11,11 @@ warnings.filterwarnings('ignore')
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-f", "--filepath", default='010001_clampi_e_upreg_msl2i_e_upreg.bed', help="path to bed file to get gene list data")
+parser.add_argument("-s", "--savepath", default='.', help="path to save gene list csv file")
 
 args = parser.parse_args()
 data = args.filepath
+savepath = args.savepath
 
 # read data from bed file into csv
 df = pd.read_csv(data, sep="\t", names=["chr","start","end","gene_id","score","gene_name"])
@@ -31,14 +33,15 @@ filename = "_".join(splitname[:-1])
 filename2 = filename + "_geneList_1.csv"
 
 # get path to save df2
-cwd = os.getcwd()
-savepath = cwd+"/test_results/clusters/"+filename
+# cwd = os.getcwd()
+# savepath = cwd+"/test_results/clusters/"+filename
+savedir = savepath + filename
 
 # create directory if it doesnt already exist
-if not os.path.isdir(savepath):
-	os.mkdir(savepath)
-print("Directory '% s' created", savepath)
+if not os.path.isdir(savedir):
+	os.makedirs(savedir)
+print("Directory '% s' created", savedir)
 
 # save dataframe, df2
-df2.to_csv(savepath+"/"+filename2, header=True, index=None, mode='w')
+df2.to_csv(savedir+"/"+filename2, header=True, index=None, mode='w')
 print("CSV Gene List Successfully Made! => ", filename2)

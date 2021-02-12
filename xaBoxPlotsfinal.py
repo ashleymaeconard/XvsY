@@ -6,34 +6,34 @@ import seaborn
 from statannot import add_stat_annotation
 import matplotlib.pyplot as plt
 import itertools
-import 
+import os
 
 import warnings
 warnings.filterwarnings('ignore')
 
-def makeViolinPlot(genegroup_lst, savepath):
+def makeViolinPlot(genegroup_lst, degpath, savepath):
 
     li = []
 
     for filename in genegroup_lst:
-        temp = filename.replace('.', '_').split("_") #[2:-1]
+        temp = filename.split('/')[-1].replace('.', '_').split("_") #[2:-1]
         print(temp)
         # for genes unique to a specific experimental condition, ie. non-overlapping group
         if len(temp) < 8:
             # read bed file into dataframe
             df = pd.read_csv(filename, sep="\t", names=['chr', 'start', 'end', 'gene_id', 'score', 'gene_name'])
             n = str(len(df.index))
-            splitname = filename.replace('.', '_').split("_")
+            splitname = filename.split('/')[-1].replace('.', '_').split("_")
             print(splitname)
             # get file base name, shorter if embryo which is unsexed
             if 'e' in temp:
-                fullfile = "_".join(splitname[2:5])
-                file1 = "_".join(splitname[2:5])
+                fullfile = "_".join(splitname[1:-1])
+                file1 = "_".join(splitname[1:-1])
             else:
-                fullfile = "_".join(splitname[2:6])
-                file1 = "_".join(splitname[2:6])
+                fullfile = "_".join(splitname[1:-1])
+                file1 = "_".join(splitname[1:-1])
             # read csv with expression data into dataframe and get gene fold changes
-            mag_fold1 = pd.read_csv(file1 + ".csv")
+            mag_fold1 = pd.read_csv(degpath + "/" + file1 + ".csv")
             gene_ids = df['gene_id'].tolist()
             mag_fold1 = mag_fold1[mag_fold1['log2FoldChange'].isin(gene_ids)].astype(float)
             # add stuff into df
@@ -185,8 +185,9 @@ def main():
     # get list of bed files
     all_files = glob.glob(data + "/*.bed")
 
-    if not os.path.isdir(os.getcwd()+'/comparisons/xa_boxplots'):
-        os.mkdir(os.getcwd()+'/comparisons/xa_boxplots')
+    if not os.path.isdir(savepath): #os.getcwd()+'/comparisons/xa_boxplots'
+        print(os.getcwd)
+        os.mkdir(savepath)
 
     for idx,f in enumerate(all_files):
         makeViolinPlot([f], savepath)
