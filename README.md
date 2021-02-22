@@ -1,6 +1,8 @@
+# XvsYtime
 ## RNA-seq Analysis Pipeline for data across sex and time
 CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development
-Tentative Name: EXPressST
+
+![illustration of pipline](https://github.com/ashleymaeconard/clampvsmsl2/blob/develop/detailed_workflow.PNG?raw=true)
 
 ## Intersections
 Using differential expression results from DESeq2, gene sets can be overlapped using Intervene by running:
@@ -81,5 +83,3 @@ To generate a summary of the FIMO results as a table showing the percentage of a
 ```bash
 python meme_summary.py -p /PATH/TO/MEME_RESULTS
 ```
-
-![illustration of pipline](https://github.com/ashleymaeconard/clampvsmsl2/blob/develop/workflow_diagram2.PNG?raw=true)
