@@ -65,7 +65,6 @@ rule go_analysis:
 	shell:
 		"./scripts/runGOall.sh {input} {output}"	
 
-
 rule go_summary:
 	input:
 		expand(path+"go_analysis/clusters")
@@ -76,4 +75,35 @@ rule go_summary:
 		python scripts/goList.py -f {input} -g BP
 		python scripts/goList.py -f {input} -g CC
 		python scripts/goList.py -f {input} -g MF
+		'''
+
+rule meme_suite_prep:
+	input:
+		expand(path+"deg_sets/gene_beds")
+	output:
+		directory(expand(path+"motif_analysis/clusters"))
+	shell:
+		"./scripts/memesuitePrep.sh {input} {output}"
+
+rule run_meme:
+	input:
+		expand(path+"motif_analysis/clusters")
+	output:
+		directory(expand(path+"motif_analysis/clusters_meme"))
+	shell:
+		'''
+		cp -r {input} {input}_meme
+		./scripts/runMeme.sh {input}_meme
+		'''
+
+rule run_fimo:
+	input:
+		expand(path+"motif_analysis/clusters")
+	output:
+		directory(expand(path+"motif_analysis/clusters_fimo"))
+	shell:
+		'''
+		cp -r {input} {input}_fimo
+		./scripts/runFimo.sh {input}_fimo scripts/meme_CLAMP_overlap_GAF.txt
+		python scripts/fimo_summary.py -p {output}
 		'''
