@@ -13,6 +13,13 @@ To create the environment required to run XvsY, use the following command from t
 conda env create -f xvsy_environment.yml
 ```
 
+Also due to large file size, you will need to unzip the dm6.fa file from the scripts directory with this command:
+```bash
+unzip scripts/dm6.zip -d scripts/
+rm -rf scripts/dm6.zip
+```
+also check the gtf file for the genes from way back when
+
 Now to run XvsYtime with Snakemake use the following commands from the terminal:
 ```bash
 snakemake -R --until RULE --cores 1 --config outdir='/PATH/TO/OUTPUT/DIRECTORY/'
