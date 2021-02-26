@@ -2,7 +2,7 @@
 ## RNA-seq Analysis Pipeline for data across sex and time
 CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development
 
-![illustration of pipline](https://github.com/ashleymaeconard/clampvsmsl2/blob/develop/detailed_workflow.PNG?raw=true)
+![illustration of pipline](https://github.com/ashleymaeconard/XvsY/blob/develop2/detailed_workflow.PNG)
 
 ## Intersections
 Using differential expression results from DESeq2, gene sets can be overlapped using Intervene by running:
