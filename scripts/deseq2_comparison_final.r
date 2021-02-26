@@ -89,16 +89,16 @@ main <- function(){
     FULL_OUTDIR <- paste(OUTPUTDIR,CONDIT_DIR,"deseq2",sep="/")
     ALL_DEG_DIR <- paste(OUTPUTDIR,"all_degs",sep="/") #for all gene sets
     DATA_DIR <- paste(OUTPUTDIR,"data",sep="/") #for up and down reg sets
-    if (!dir.exists(CONDIT_DIR)){
-        dir.create(CONDIT_DIR)
-    } else {
-        print("Results directory already exists.")
-    }
-    if (!dir.exists(FULL_OUTDIR)){
-        dir.create(FULL_OUTDIR)
-    } else {
-        print("deseq2 directory already exists.")
-    }
+    #if (!dir.exists(CONDIT_DIR)){
+    #    dir.create(CONDIT_DIR)
+    #} else {
+    #    print("Results directory already exists.")
+    #}
+    #if (!dir.exists(FULL_OUTDIR)){
+    #    dir.create(FULL_OUTDIR)
+    #} else {
+    #    print("deseq2 directory already exists.")
+    #}
     if (!dir.exists(ALL_DEG_DIR)){
         dir.create(ALL_DEG_DIR)
     } else {
@@ -250,25 +250,25 @@ main <- function(){
     dfresLRT <- cbind(IDName = rownames(resLRT), resLRT)
     rownames(dfresLRT) <- 1:nrow(dfresLRT)
     
-    venn.diagram( x = list(as.list(dfresW[["IDName"]]),  as.list(dfresLRT[["IDName"]])), category.names = c("W_DEG" , "LRT_DEG"),filename = paste(FULL_OUTDIR,'venn_wald_LRT.png', sep="/"), output=TRUE, main = paste(CONDITION, "Venn - WALD LRT", sep=" ")) 
+    #venn.diagram( x = list(as.list(dfresW[["IDName"]]),  as.list(dfresLRT[["IDName"]])), category.names = c("W_DEG" , "LRT_DEG"),filename = paste(FULL_OUTDIR,'venn_wald_LRT.png', sep="/"), output=TRUE, main = paste(CONDITION, "Venn - WALD LRT", sep=" ")) 
     
     # Saving MA plots before and after shrinkage
-    pdf(paste(FULL_OUTDIR,paste('ma_plot_noShrinkage_padj_Wald',toString(PVAL_THRESH),'.pdf',sep=""),sep="/"))
-    plotMA(resW, ylim=c(-4,4), cex=.8)
-    abline(h=c(-1,1), col="dodgerblue", lwd=2)
-    dev.off()
+    #pdf(paste(FULL_OUTDIR,paste('ma_plot_noShrinkage_padj_Wald',toString(PVAL_THRESH),'.pdf',sep=""),sep="/"))
+    #plotMA(resW, ylim=c(-4,4), cex=.8)
+    #abline(h=c(-1,1), col="dodgerblue", lwd=2)
+    #dev.off()
 #     pdf(paste(FULL_OUTDIR,paste('ma_plot_normalShrinkage_padj_Wald',toString(PVAL_THRESH),'.pdf',sep=""), sep="/"))
 #     plotMA(resNormW, ylim=c(-4,4), cex=.8)
 #     abline(h=c(-1,1), col="dodgerblue", lwd=2)
 #     dev.off()
-    pdf(paste(FULL_OUTDIR,paste('ma_plot_noShrinkage_padj_LRT',toString(PVAL_THRESH),'.pdf',sep=""),sep="/"))
-    plotMA(resLRT, ylim=c(-4,4), cex=.8)
-    abline(h=c(-1,1), col="dodgerblue", lwd=2)
-    dev.off()
-    pdf(paste(FULL_OUTDIR,paste('ma_plot_normalShrinkage_padj_LRT',toString(PVAL_THRESH),'.pdf',sep=""), sep="/"))
-    plotMA(resNormLRT, ylim=c(-4,4), cex=.8)
-    abline(h=c(-1,1), col="dodgerblue", lwd=2)
-    dev.off()
+    #pdf(paste(FULL_OUTDIR,paste('ma_plot_noShrinkage_padj_LRT',toString(PVAL_THRESH),'.pdf',sep=""),sep="/"))
+    #plotMA(resLRT, ylim=c(-4,4), cex=.8)
+    #abline(h=c(-1,1), col="dodgerblue", lwd=2)
+    #dev.off()
+    #pdf(paste(FULL_OUTDIR,paste('ma_plot_normalShrinkage_padj_LRT',toString(PVAL_THRESH),'.pdf',sep=""), sep="/"))
+    #plotMA(resNormLRT, ylim=c(-4,4), cex=.8)
+    #abline(h=c(-1,1), col="dodgerblue", lwd=2)
+    #dev.off()
 
     # Adding gene symbol and placing it in the front for no and normal shrinkage matricies
     ids.type  <- gene_ID_database_name
@@ -374,17 +374,17 @@ main <- function(){
     res_no_padjLRT_sort <- res_no_padjLRT[order(res_no_padjLRT$padj),]
     resSortNormShrLRT <- resN_sym_frontLRT[order(resN_sym_frontLRT$padj),]
     
-    write.csv(as.data.frame(resSortW), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_W",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
-    write.csv(as.data.frame(res_no_padjW_sort), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_W_allGenes",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    #write.csv(as.data.frame(resSortW), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_W",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    #write.csv(as.data.frame(res_no_padjW_sort), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_W_allGenes",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
     #CANT DO SHRINKAGE WITH BETA PRIOR #write.csv(as.data.frame(resSortNormShrW), file=paste(FULL_OUTDIR,paste("deseq2_output_normalShrinkage_padj_W",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
-    write.csv(na.omit(df_mat_sym_frontW),paste(FULL_OUTDIR,paste('deseq2_noShrinkage_clustermapInput_padj_W',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
+    #write.csv(na.omit(df_mat_sym_frontW),paste(FULL_OUTDIR,paste('deseq2_noShrinkage_clustermapInput_padj_W',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
     #CANT DO SHRINKAGE WITH BETA PRIOR #write.csv(na.omit(df_matN_sym_frontW),paste(FULL_OUTDIR,paste('deseq2_normalShrinkage_clustermapInput_padj_W',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
 
-    write.csv(as.data.frame(resSortLRT), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_LRT",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
-    write.csv(as.data.frame(res_no_padjLRT_sort), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_LRT_allGenes",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
-    write.csv(as.data.frame(resSortNormShrLRT), file=paste(FULL_OUTDIR,paste("deseq2_output_normalShrinkage_padj_LRT",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
-    write.csv(na.omit(df_mat_sym_frontLRT),paste(FULL_OUTDIR,paste('deseq2_noShrinkage_clustermapInput_padj_LRT',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
-    write.csv(na.omit(df_matN_sym_frontLRT),paste(FULL_OUTDIR,paste('deseq2_normalShrinkage_clustermapInput_padj_LRT',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
+    #write.csv(as.data.frame(resSortLRT), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_LRT",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    #write.csv(as.data.frame(res_no_padjLRT_sort), file=paste(FULL_OUTDIR,paste("deseq2_output_noShrinkage_padj_LRT_allGenes",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    #write.csv(as.data.frame(resSortNormShrLRT), file=paste(FULL_OUTDIR,paste("deseq2_output_normalShrinkage_padj_LRT",toString(PVAL_THRESH),'.csv',sep=""), sep="/"), row.names=FALSE, quote=FALSE)
+    #write.csv(na.omit(df_mat_sym_frontLRT),paste(FULL_OUTDIR,paste('deseq2_noShrinkage_clustermapInput_padj_LRT',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
+    #write.csv(na.omit(df_matN_sym_frontLRT),paste(FULL_OUTDIR,paste('deseq2_normalShrinkage_clustermapInput_padj_LRT',toString(PVAL_THRESH),'.csv',sep=""),sep='/'), row.names=FALSE, quote=FALSE) # clustermap input
 
     if (SIGNIFICANCE_TEST == "wald"){
         write.csv(as.data.frame(res_no_padjW_sort), file=paste(ALL_DEG_DIR,paste(CONDITION,'allGenes.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)

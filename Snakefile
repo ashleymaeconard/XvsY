@@ -1,13 +1,14 @@
-path="/data/compbio/inathoo/snakemake_test/test7/"
+# path="/data/compbio/inathoo/snakemake_test/test7/"
+path=config['outdir']
 
-##rule run_deseq2:
-##	input: expand(path+"readcounts/metadata_allSamples_full.csv"), expand(path+"readcounts/FB_gene_ByCondition_countTable_full.csv"), expand(path)
-##	output: directory(expand(path+"data"))
-##	shell:
-##		'''
-##		Rscript scripts/deseq2_comparison_final.r {input} cRNAi_e 0 0 0.05 dme elavGRFP_e wald 3
-##		Rscript scripts/deseq2_comparison_final.r {input} mRNAi_e 0 0 0.05 dme elavGRFP_e wald 3
-##		'''
+rule run_deseq2:
+	input: expand(path+"readcounts/metadata_allSamples_full.csv"), expand(path+"readcounts/FB_gene_ByCondition_countTable_full.csv"), expand(path)
+	output: directory(expand(path+"data"))
+	shell:
+		'''
+		Rscript scripts/deseq2_comparison_final.r {input} cRNAi_e 0 0 0.05 dme elavGRFP_e wald 3
+		Rscript scripts/deseq2_comparison_final.r {input} mRNAi_e 0 0 0.05 dme elavGRFP_e wald 3
+		'''
 
 rule get_ids:
 	input:

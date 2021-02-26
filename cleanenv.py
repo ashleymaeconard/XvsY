@@ -1,7 +1,7 @@
 import numpy as np
 import re
 
-envfile = open("environment2.yml", "w")
+envfile = open("xvsy_environment_final.yml", "w")
 with open('environment.yml', 'r') as f:
     all_lines = f.readlines()
     for line in all_lines:
