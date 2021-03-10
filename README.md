@@ -1,4 +1,4 @@
-# XvsYtime
+# XvsY
 ## RNA-seq Analysis Pipeline for data across sex and time
 CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development
 
@@ -6,32 +6,34 @@ CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development
 
 ## The Snakemake Pipeline
 
-Snakemake is a workflow management system that was used to create a reproducible and scalable pipeline for RNA-seq analyses, named XvsYtime, that the user can interact with through the command line. This includes tools to determine the differentially expressed genes based on read count data using DESeq2, find intersections between  gene sets using Intervene, generate global X vs autosome violin plots and comparative fold change box plots, conduct gene ontology analysis using clusterProfiler, and perform motif analysis using MEME and FIMO from the MEMESuite.
+Snakemake is a workflow management system that was used to create a reproducible and scalable pipeline for RNA-seq analyses, named XvsY, that the user can interact with through the command line. This includes tools to determine the differentially expressed genes based on read count data using DESeq2, find intersections between  gene sets using Intervene, generate global X vs autosome violin plots and comparative fold change box plots, conduct gene ontology analysis using clusterProfiler, and perform motif analysis using MEME and FIMO from the MEMESuite.
 
 To create the environment required to run XvsY, use the following command from the terminal:
 ```bash
 conda env create -f xvsy_environment.yml
 ```
 
-Also due to large file size, you will need to unzip the dm6.fa file from the scripts directory with this command:
+Also due to large file size, you will need to unzip the dm6.fa and genes.gtf files from the genomes directory with this command:
 ```bash
-unzip scripts/dm6.zip -d scripts/
-rm -rf scripts/dm6.zip
+unzip genomes/dm6.zip -d genomes/
+rm -rf genomes/dm6.zip
+unzip genomes/genesgtf.zip -d genomes/
+rm -rf genomes/genesgtf.zip
 ```
 also check the gtf file for the genes from way back when
 
-Now to run XvsYtime with Snakemake use the following commands from the terminal:
+Now to run XvsY with Snakemake use the following commands from the terminal:
 ```bash
-snakemake -R --until RULE --cores 1 --config outdir='/PATH/TO/OUTPUT/DIRECTORY/'
+snakemake -R --until RULE --cores 1 --config outdir='/PATH/TO/OUTPUT/DIRECTORY/' ...
 ```
 
 After the --until flag, you can select any rule from the Snakefile, and the pipeline will run all the rules (with all their scripts) needed to create the inputs for the rule that you would like to run until.
 
-The following is the list of rules in the Snakefile for XvsYtime:
-* run_deseq2
-* get_ids
-* find_intersections
-* get_gene
+The following is the list of rules in the Snakefile for XvsY:
+* run_deseq2 - this rule runs DESeq2 twice to create the sets of differentially expressed genes for two different experiments (eg. RNAi #1 vs RNAi #2 *or* Timepoint #1 vs Timepoint #2 *or* Drug #1 vs Drug #2)
+* get_ids - this rule uses the outputs of DESeq2 to generate text files with the gene IDs for the sets of differentially expressed genes
+* find_intersections - this rule uses the gene ID text files to find the intersections for the sets of differentially expressed genes
+* get_gene - this rule converts the gene ID .txt files to .bed files (gets chromosome, start and end for each gene)
 * make_boxplots
 * make_XAboxplots
 * global_boxplots
@@ -45,7 +47,7 @@ ask ashley if there is a way to create a tree connecting these rules so users ca
 also add in scripts to go from fastq raw data files to read counts?
 
 After the --config flag, set outdir equal to the directory containing the Snakefile, the scripts, and your data, as this is the directory in which XvsY will
-generate all of its outputs.
+generate all of its outputs (*outdir* is the base directory).
 
 
 ## Intersections (BLUE)
@@ -53,7 +55,7 @@ First to determine the differentially expressed genes from the RNA-seq read coun
 
 Using differential expression results from DESeq2, gene sets can be overlapped using Intervene by first running the rule **get_ids** and then **find_intersections**. The rule **get_ids** will generate a text file with the gene IDs (ex. the FlyBase ID for Drosophila genes) from the CSV file outputted by DESeq2. The rule **find_intersections** will then run Intervene on these text files to generate a bar plot to visualize the size of the overlaps as well as text files containing the gene IDs in each overlap.
 
-Next, the rule **get_gene** will generate BED files for the genes in each of these intersections. 
+Next, the rule **get_gene** will generate BED files for the genes in each of these intersections by getting the chromosome number, start site, end site, and gene name.
 
 These scripts will generate Venn Diagrams and Bar Plots to visualize the intersections and they will also generate BED files for the gene sets in each overlap.
 
@@ -61,15 +63,15 @@ Additionally, these intersection scripts rely on individual python scripts:
 ```bash
 python csv_to_id.py -f CSV
 ```
-(to generate text file list of FlyBase IDs from differential expression results CSV file)
+(to generate text file list of FlyBase IDs from differential expression results CSV file, used in *all_csv_to_id.sh*)
 ```bash
-python gtf_to_bed2.py -f /PATH/TO/genes.gtf 
+python gtf_to_bed2.py -f /PATH/TO/genes.gtf -s /PATH/TO/SAVE/genes_gtf.bed
 ```
-(to create BED file from GTF to get gene names, chromosome, start and end)
+(to create BED file from GTF to get gene names, chromosome, start and end, used in *all_id_to_gene.sh*)
 ```bash
-python id_to_gene3.py -t TXT_FILE 
+python id_to_gene3.py -t /PATH/TO/TXT_FILE -b /PATH/TO/genes_gtf.bed
 ```
-(to create BED files to Get genes from FlyBase IDs in unique sets from Intervene)
+(to create BED files to Get genes from FlyBase IDs in unique sets from Intervene, used in *all_id_to_gene.sh*)
 
 ## Fold Change Comparison between gene sets (GREEN)
 To compare the fold changes between two or more of these gene sets in BED file format (from the intersections), use the rule **make_boxplots**.
