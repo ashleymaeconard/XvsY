@@ -82,6 +82,10 @@ The following is the list of rules in the Snakefile for XvsY and their correspon
 
 After the --config flag, set outdir equal to the directory containing the Snakefile, the scripts, and your data, as this is the directory in which XvsY will generate all of its outputs (*outdir* is the base directory).
 
+For example, to run the XvsY Snakemake Pipeline until the go_summary rule, run the following command from the terminal:
+```bash
+snakemake -R --until go_summary --cores 1 --config outdir='/data/compbio/inathoo/snakemake_test/test10/' metadata='readcounts/metadata_allSamples_full.csv' counts='readcounts/FB_gene_ByCondition_countTable_full.csv' condition='cRNAi_e' condition2='mRNAi_e' batch_effect=0 time_course=0 pval_threshold=0.05 organism='dme' control='elavGRFP_e' control2='elavGRFP_e' stat_test='wald' read_threshold=3 gtf_path='genomes/genes.gtf' sep_tps=0 organism='dme' go_pval=0.05
+```
 
 ## Intersections (BLUE)
 First to determine the differentially expressed genes from the RNA-seq read count data, DESeq2 is used in the rule **run_deseq2**.
