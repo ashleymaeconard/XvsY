@@ -20,7 +20,11 @@ rm -rf genomes/dm6.zip
 unzip genomes/genesgtf.zip -d genomes/
 rm -rf genomes/genesgtf.zip
 ```
-also check the gtf file for the genes from way back when
+<!-- also check the gtf file for the genes from way back when -->
+
+The scripts directory contains all the Python, R, and bash scripts required to run XvsY. The genomes directory contains the Drosophila genes GTF file, the chromosome FA file, and the reformatted genes file (from the GTF). The PWMs directory contains the PWMs required for FIMO analysis (if desired).
+
+In regards to the data, the readcounts directory contains the metadata file with four columns: experiment ID, batch, condition name, timepoint. It also includes the raw read count data obtained after running HISAT2 and HTSeq. This time has a column corresponding to each of the experiment IDs in the metadata file and a row for each of the genes in the Drosophila genome.
 
 Now to run XvsY with Snakemake use the following commands from the terminal:
 ```bash
@@ -52,23 +56,23 @@ The following is the list of rules in the Snakefile for XvsY and their correspon
 * get_gene - this rule converts the gene ID .txt files to .bed files (gets chromosome, start and end for each gene)
   * config flags:
     * gtf_path='genomes/GENES.GTF' (ex. 'genomes/genes.gtf')
-* make_boxplots
-* make_XAboxplots
-* global_boxplots
-* go_analysis
+* make_boxplots - this rule uses the .bed files to compare the fold changes between all pairs of gene sets and overlaps
+* make_XAboxplots - this rule uses the .bed files to compare the fold changes of the genes located on the X chromosome vs the autosomes between different sets
+* global_boxplots - this rule uses the outputs of deseq2 to generate global X vs A plots and look at the fold changes across all chromosomes
+* go_analysis - this rule uses the .bed files to run gene ontology analysis for each gene set
   * config flags:
     * sep_tps=0 or 1 (set to 1 to run GO for each timepoint separately, 0 otherwise)
     * organism='dme'
     * go_pval=0.05
-* go_summary
-* meme_suite_prep
+* go_summary - this rule uses the information from each GO cluster to generate summary tables for each GO category
+* meme_suite_prep -  this rule uses the .bed files to generate FASTA files for the genes and other inputs for MEME/FIMO
   * config flags:
     * reform_genes='genomes/REFORMATTED_GENES.CSV' (ex. 'genomes/reformatted_genes_gtf.csv')
     * chrom_fa='genomes/ORG.FA' (ex. 'genomes/dm6.fa')
     * tss_only=1 (set to 1 to run +-1kb from transcription start site, 0 otherwise)
     *  organism='dme'
-* run_meme
-* run_fimo
+* run_meme - this rule uses the FASTA files to run MEME and find the top 3 de novo motifs
+* run_fimo - this rule uses the FASTA files to run FIMO and find the TF binding motif across all genes based on the PWM
   * config flags:
     * pwm_path='pwms/PWM_OF_INTEREST.txt' (ex. 'pwms/meme_CLAMP_overlap_GAF.txt')
 
