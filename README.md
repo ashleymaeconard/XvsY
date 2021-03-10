@@ -60,7 +60,7 @@ The following is the list of rules in the Snakefile for XvsY:
 * run_fimo
 
 <p align="center">
-    <img src="https://github.com/ashleymaeconard/XvsY/blob/develop2/snakemake_dag.PNG" width="600" alt="Snakemake Pipeline DAG">
+    <img src="https://github.com/ashleymaeconard/XvsY/blob/develop2/snakemake_dag.PNG" width="500" alt="Snakemake Pipeline DAG">
 </p>
 <!-- ![Snakemake Pipeline DAG](https://github.com/ashleymaeconard/XvsY/blob/develop2/snakemake_dag.PNG) -->
 
