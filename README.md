@@ -59,6 +59,8 @@ The following is the list of rules in the Snakefile for XvsY:
 * run_meme
 * run_fimo
 
+!!![Snakemake Pipeline DAG](https://github.com/ashleymaeconard/XvsY/blob/develop2/snakemake_dag.PNG)
+
 ask ashley if there is a way to create a tree connecting these rules so users can see what rule is required for what
 also add in scripts to go from fastq raw data files to read counts?
 
