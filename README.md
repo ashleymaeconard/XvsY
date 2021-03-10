@@ -27,10 +27,26 @@ Now to run XvsY with Snakemake use the following commands from the terminal:
 snakemake -R --until RULE --cores 1 --config outdir='/PATH/TO/OUTPUT/DIRECTORY/' ...
 ```
 
+add rest of config flags
+dag visualizations
+
 After the --until flag, you can select any rule from the Snakefile, and the pipeline will run all the rules (with all their scripts) needed to create the inputs for the rule that you would like to run until.
 
 The following is the list of rules in the Snakefile for XvsY:
 * run_deseq2 - this rule runs DESeq2 twice to create the sets of differentially expressed genes for two different experiments (eg. RNAi #1 vs RNAi #2 *or* Timepoint #1 vs Timepoint #2 *or* Drug #1 vs Drug #2)
+  * config flags:
+  metadata='readcounts/METADATA.CSV' (ex. 'readcounts/metadata_allSamples_full.csv')
+  counts='readcounts/READCOUNTS.CSV' (ex. 'readcounts/FB_gene_ByCondition_countTable_full.csv')
+  condition='CONDITION1' (ex. 'cRNAi_e')
+  control='CONTROL1' (ex. 'elavGRFP_e')
+  condition2='CONDITION2' (ex. 'mRNAi_e')
+  control2='CONTROL2' (ex. 'elavGRFP_e')
+  batch_effect=0 or 1
+  time_course=0 or 1
+  pval_threshold=0.05
+  organism='dme'
+  stat_test='wald' or 'lrt'
+  read_threshold=3
 * get_ids - this rule uses the outputs of DESeq2 to generate text files with the gene IDs for the sets of differentially expressed genes
 * find_intersections - this rule uses the gene ID text files to find the intersections for the sets of differentially expressed genes
 * get_gene - this rule converts the gene ID .txt files to .bed files (gets chromosome, start and end for each gene)
