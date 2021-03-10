@@ -10,10 +10,15 @@ warnings.filterwarnings('ignore')
 # create the command line parser
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-t", "--txtfile", default='test.txt', help="path to id txt file to get data")
+parser.add_argument("-t", "--txtfile", default='test.txt', help="path to id .txt file to get data")
+parser.add_argument("-b", "--bedfile", default='gtf_genes.bed', help="path to genes gtf .bed file")
 
 args = parser.parse_args()
 ids = args.txtfile
+genes_pth = args.bedfile
+
+if (genes_pth[-1] != '/'):
+	genes_pth = genes_pth + '/'
 
 #ids = sys.argv[1]
 
@@ -26,7 +31,7 @@ flybase_ids_txt = open(ids, 'r')
 lst_ids = [line.strip('\n') for line in flybase_ids_txt.readlines()]
 
 # read gtf_genes.bed file as dataframe
-genes = pd.read_csv("scripts/gtf_genes.bed", sep="\t", names=['chr', 'start', 'end', 'gene_id', 'score', 'gene_name'])
+genes = pd.read_csv(genes_pth+"gtf_genes.bed", sep="\t", names=['chr', 'start', 'end', 'gene_id', 'score', 'gene_name'])
 
 # find genes present in both the gtf_genes.bed file as well as the gene list from the intersection text file
 overlaps = genes[genes['gene_id'].isin(lst_ids)]

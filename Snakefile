@@ -1,13 +1,13 @@
-# path="/data/compbio/inathoo/snakemake_test/test7/"
-path=config['outdir']
+path=config['outdir'] #should end with a '/'
 
 rule run_deseq2:
-	input: expand(path+"readcounts/metadata_allSamples_full.csv"), expand(path+"readcounts/FB_gene_ByCondition_countTable_full.csv"), expand(path)
+	# input: expand(path+"{metadata}", metadata=config["metadata"]), expand(path+"{counts}", counts=config["counts"]), expand(path)
+	# input: expand(path)
 	output: directory(expand(path+"data"))
 	shell:
 		'''
-		Rscript scripts/deseq2_comparison_final.r {input} cRNAi_e 0 0 0.05 dme elavGRFP_e wald 3
-		Rscript scripts/deseq2_comparison_final.r {input} mRNAi_e 0 0 0.05 dme elavGRFP_e wald 3
+		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
+		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
 		'''
 
 rule get_ids:
@@ -28,11 +28,12 @@ rule find_intersections:
 
 rule get_gene:
 	input:
+		# expand(path+"deg_sets/barPlot/sets"), expand(path+"{gtf_path}", gtf_path=config["gtf_path"])
 		expand(path+"deg_sets/barPlot/sets")
 	output:
 		directory(expand(path+"deg_sets/gene_beds"))
 	shell:
-		"./scripts/all_id_to_gene.sh {input}"
+		"./scripts/all_id_to_gene.sh {input} {config[gtf_path]}"
 
 rule make_boxplots:
 	input:
@@ -64,7 +65,7 @@ rule go_analysis:
 	output:
 		directory(expand(path+"go_analysis/clusters"))
 	shell:
-		"./scripts/runGOall.sh {input} {output}"	
+		"./scripts/runGOall.sh {input} {output} {config[sep_tps]} {config[organism]} {config[go_pval]}"	
 
 rule go_summary:
 	input:
@@ -84,7 +85,7 @@ rule meme_suite_prep:
 	output:
 		directory(expand(path+"motif_analysis/clusters"))
 	shell:
-		"./scripts/memesuitePrep.sh {input} {output}"
+		"./scripts/memesuitePrep.sh {input} {output} {config[reform_genes]} {config[chrom_fa]} {config[tss_only]} {config[organism]}"
 
 rule run_meme:
 	input:
@@ -105,6 +106,6 @@ rule run_fimo:
 	shell:
 		'''
 		cp -r {input} {input}_fimo
-		./scripts/runFimo.sh {input}_fimo scripts/meme_CLAMP_overlap_GAF.txt
+		./scripts/runFimo.sh {input}_fimo {config[pwm_path]}
 		python scripts/fimo_summary.py -p {output}
 		'''

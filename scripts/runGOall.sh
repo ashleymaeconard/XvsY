@@ -1,14 +1,20 @@
 #!/bin/bash
-if [ $# -ne 2 ]; then
+if [ $# -ne 5 ]; then
 	echo "Usage: ./runGOall.sh
 		1) /PATH/TO/BED_DIR
-		2) /PATH/TO/INPUT_OUTPUT_DIR/ "
+		2) /PATH/TO/INPUT_OUTPUT_DIR/ 
+		3) SEPARATE_TIMEPOINTS (set to 1 to run GO for each timepoint separately, 0 otherwise; 0 recommended as default)
+		4) ORGANISM (dme, hsa, mmu)
+		5) ADJUSTED_PVALUE (recommend 0.05)"
 	exit 1
 fi
 
 #Inputting arguments
 BED_DIR=$1
 OUT_DIR=$2
+SEP_TPS=$3
+ORGANISM=$4
+ADJ_PVAL=$5
 
 echo "Searching ${BED_DIR}"
 
@@ -34,6 +40,6 @@ do
 	echo $godir
 
 	echo "Running GO Analysis the Gene List"
-	Rscript scripts/clusterProfiler.r $godir $actualdir 0 dme 0.05
+	Rscript scripts/clusterProfiler.r $godir $actualdir $SEP_TPS $ORGANISM $ADJ_PVAL
 done
 echo "Done!"
