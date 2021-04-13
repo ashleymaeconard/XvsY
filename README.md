@@ -2,8 +2,6 @@
 ## RNA-seq Analysis Pipeline for data across sex and time
 CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development
 
-![illustration of pipline](https://github.com/ashleymaeconard/XvsY/blob/develop2/detailed_workflow.PNG)
-
 ## The Snakemake Pipeline
 
 Snakemake is a workflow management system that was used to create a reproducible and scalable pipeline for RNA-seq analyses, named XvsY, that the user can interact with through the command line. This includes tools to determine the differentially expressed genes based on read count data using DESeq2, find intersections between  gene sets using Intervene, generate global X vs autosome violin plots and comparative fold change box plots, conduct gene ontology analysis using clusterProfiler, and perform motif analysis using MEME and FIMO from the MEMESuite.
