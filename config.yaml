@@ -1,0 +1,13 @@
+batch_effect: 0
+time_course: 0
+pval_threshold: 0.05
+organism: 'dme'
+stat_test: 'wald'
+read_threshold: 3
+sep_tps: 0
+go_pval: 0.05
+gtf_path: 'genomes/genes.gtf'
+gtf_bed: 'genomes/gtf_genes.bed'
+reform_genes: 'genomes/reformatted_genes_gtf.csv'
+chrom_fa: 'genomes/dm6.fa'
+tss_only: 1

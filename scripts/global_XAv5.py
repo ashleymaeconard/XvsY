@@ -43,7 +43,7 @@ def makeGlobalPlot(filename, reg, savepath, gtf_path):
     if 'chrom' not in df2.columns:
         # print(df2[0:2])
         gene_ids = df2['gene_id'].tolist()
-        genes = pd.read_csv(gtf_path+"/gtf_genes.bed", sep="\t", names=['chr', 'start', 'end', 'gene_id', 'score', 'gene_name'])
+        genes = pd.read_csv(gtf_path, sep="\t", names=['chr', 'start', 'end', 'gene_id', 'score', 'gene_name'])
         # print(genes[0:10])
         # print(gene_ids[0:10])
         # print(genes['gene_id'].isin(gene_ids)[0:10])
@@ -102,6 +102,9 @@ def makeGlobalPlot(filename, reg, savepath, gtf_path):
     plt.tick_params(axis='x', pad=17)
 
     plt.tight_layout()
+
+    condition = filename.split('/')[-1].split('.')[0]
+    plt.title('Global X vs A Plot for ' + condition + ' ' + reg)
 
     nobs =  frame.groupby(['chrom']).apply(lambda x: 'n: {}'.format(len(x)))
     ymin,ymax = ax.get_ylim()

@@ -1,13 +1,24 @@
+configfile: "config.yaml"
+
 path=config['outdir'] #should end with a '/'
 
-rule run_deseq2:
-	# input: expand(path+"{metadata}", metadata=config["metadata"]), expand(path+"{counts}", counts=config["counts"]), expand(path)
-	# input: expand(path)
+# rule run_deseq2_2ex:
+# 	# input: expand(path+"{metadata}", metadata=config["metadata"]), expand(path+"{counts}", counts=config["counts"]), expand(path)
+# 	# input: expand(path)
+# 	output: directory(expand(path+"data"))
+# 	shell:
+# 		'''
+# 		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
+# 		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
+# 		'''
+
+rule run_deseq2_3ex:
 	output: directory(expand(path+"data"))
 	shell:
 		'''
 		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
 		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
+		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition3]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control3]} {config[stat_test]} {config[read_threshold]}
 		'''
 
 rule get_ids:
@@ -57,7 +68,7 @@ rule global_boxplots:
 	output:
 		directory(expand(path+"comparisons/global_boxplots"))
 	shell:
-		"python scripts/global_XAv5.py -f {input} -s {output} -g {path}'scripts'"
+		"python scripts/global_XAv5.py -f {input} -s {output} -g {config[gtf_bed]}"
 
 rule go_analysis:
 	input:

@@ -15,6 +15,16 @@ def makeViolinPlot(file_lst, degpath, savepath):
     li = []
     intersection = False
     for filename in file_lst:
+        count_downreg1 = file_lst[0].count('downreg')
+        count_upreg1 = file_lst[0].count('upreg')
+        total_counts1 = count_downreg1 + count_upreg1
+        print(total_counts1)
+        count_downreg2 = file_lst[1].count('downreg')
+        count_upreg2 = file_lst[1].count('upreg')
+        total_counts2 = count_downreg2 + count_upreg2
+        print(total_counts2)
+        if total_counts1 > 2 or total_counts2 > 2:
+            return
         temp = filename.split('/')[-1].replace('.', '_').split("_") #[2:-1]
         print(temp)
         # for genes unique to a specific experimental condition, ie. non-overlapping group

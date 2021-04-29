@@ -19,6 +19,6 @@ do
 		# Setting output directory
     	OUTPUT_DIR=$(dirname "${geneList}")
     	# -objfun classic --revcomp
-    	meme $geneList -dna -nmotifs 3 -maxsize 2020000 -mod anr -oc $OUTPUT_DIR/	
+    	meme $geneList -dna -nmotifs 1 -maxsize 2020000 -mod anr -oc $OUTPUT_DIR/	
 	done
 done

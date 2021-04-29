@@ -104,19 +104,17 @@ if len(subdirs) == 0:
 if len(subdirs) > 0:
 
     for cluster in subdirs:
-        try:
-            data = cluster + '/MEME/fimo.tsv'
-            df = pd.read_csv(data, sep="\t", names=['motif_id', 'motif_alt_id', 'sequence_name', 'start', 'stop', 'strand', 'score', 'p-value', 'q-value', 'matched_sequence'])
-        except:
-            data = cluster + '/MEME/fimo.txt'
-            df = pd.read_csv(data, sep="\t", names=['motif_id', 'motif_alt_id', 'sequence_name', 'start', 'stop', 'strand', 'score', 'p-value', 'q-value', 'matched_sequence'])
-
+        print(cluster)
+        data = cluster + '/MEME/fimo.txt'
+        df = pd.read_csv(data, sep="\t", names=['motif_id', 'sequence_name', 'start', 'stop', 'strand', 'score', 'p-value', 'q-value', 'matched_sequence'])
+        print(df)
+        df = df[1:]
+        if df.empty:
+            continue
         df = df[['motif_id','sequence_name']]
         temp = df['sequence_name'].str.split("::", n = 1, expand=True)
         df['gene_name']=temp[0]
         df.drop(columns=['sequence_name'], inplace=True)
-        df = df.iloc[:-3]
-        df = df.iloc[1:]
         df.drop_duplicates(subset=['motif_id','gene_name'], keep='first', inplace=True)
         df = df.sort_values(by = 'gene_name')
         df = df.reset_index()
@@ -134,7 +132,7 @@ if len(subdirs) > 0:
         for m in motifs:
             df2 = df[df['motif_id'] == m]
             matches = df2.shape[0]
-            percent = matches/num_genes
+            percent = (matches/num_genes) * 100
             lst_motifs.append(m)
             lst_percent.append(percent)
 
@@ -155,6 +153,7 @@ if len(subdirs) > 0:
         # fig1.savefig(cluster+'/MEME/summary_table.png', bbox_inches='tight')
 
         summary_df = pd.DataFrame(list(zip(lst_motifs,lst_percent)), columns=['Motif','% Matches in Genes'])
+        summary_df = summary_df.sort_values(by = 'Motif',ascending=False)
         def render_mpl_table(data, col_width=3.0, row_height=0.625, font_size=14,
                             header_color='#40466e', row_colors=['#f1f1f2', 'w'], edge_color='w',
                             bbox=[0, 0, 1, 1], header_columns=0,

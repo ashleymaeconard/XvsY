@@ -45,6 +45,9 @@ bed['geneID'] = overlaps['gene_id'].astype(str)
 bed['score'] = overlaps['score'].astype(int)
 bed['geneName'] = overlaps['gene_name'].astype(str)
 
+dros_chroms = ['X', '2R', '2L', '3R', '3L', '4', 'Y']
+bed = bed.loc[bed['chrom'].isin(dros_chroms)]
+
 # save dataframe as bed file
 name = ids.split('/')[-1].split(".")[0] + ".bed"
 bed.to_csv(os.getcwd()+'/deg_sets/gene_beds/'+name, header=None, index=None, sep="\t", mode='w')

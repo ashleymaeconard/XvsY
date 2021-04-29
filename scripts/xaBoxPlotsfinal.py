@@ -226,7 +226,13 @@ def main():
         os.makedirs(savepath)
 
     for idx,f in enumerate(all_files):
-        makeViolinPlot([f], degpath, savepath)
+        temp = f.split('/')[-1].replace('.', '_').split("_") #[2:-1]
+        overlap_id = list(temp[0])
+        sum_ids = 0
+        for i in overlap_id:
+            sum_ids += int(i)
+        if sum_ids <= 2:
+            makeViolinPlot([f], degpath, savepath)
         remaining_files = all_files[idx+1:]
         for f2 in remaining_files:
             file_lst = [f,f2]

@@ -53,6 +53,9 @@ FILTERING_THRESHOLD <- as.numeric(args[11])
 
 # Libraries
 library("DESeq2")# make sure 1.22
+library(ggplot2)
+library(ggfortify)
+library(EnhancedVolcano)
 library(dplyr)
 library(annotate)
 library(VennDiagram) # to compare Wald and LRT results
@@ -381,22 +384,47 @@ main <- function(){
 
     if (SIGNIFICANCE_TEST == "wald"){
         write.csv(as.data.frame(res_no_padjW_sort), file=paste(ALL_DEG_DIR,paste(CONDITION,'allGenes.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
-        write.csv(as.data.frame(resSortW), file=paste(DATA_DIR,paste(CONDITION,'combined.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        write.csv(as.data.frame(resSortW), file=paste(ALL_DEG_DIR,paste(CONDITION,'combined.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
         upreg_genes_wald <- which(resSortW$log2FoldChange >= 0)
         resSortW_upreg <- resSortW[upreg_genes_wald,]
-        # write.csv(as.data.frame(resSortW_upreg), file=paste(DATA_DIR,paste(CONDITION,'upreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        write.csv(as.data.frame(resSortW_upreg), file=paste(DATA_DIR,paste(CONDITION,'upreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
         downreg_genes_wald <- which(resSortW$log2FoldChange < 0)
         resSortW_downreg <- resSortW[downreg_genes_wald,]
-        # write.csv(as.data.frame(resSortW_downreg), file=paste(DATA_DIR,paste(CONDITION,'downreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        write.csv(as.data.frame(resSortW_downreg), file=paste(DATA_DIR,paste(CONDITION,'downreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        print(res_sym_frontW)
+        pdf(paste(FULL_OUTDIR,paste(CONDITION,'volcano_plot_wald.pdf',sep="_"), sep="/"), width = 10, height = 10)
+        print(EnhancedVolcano(res_sym_frontW, 
+                    lab = res_sym_frontW$gene_name, 
+                    x = 'log2FoldChange', 
+                    y = 'padj',
+                    xlim = c(-5, 5),
+                    pCutoff = PVAL_THRESH,
+                    FCcutoff = 0,
+                    pointSize = 3.0,
+                    labSize = 4.0,
+                    title = paste("Volcano Plot for", CONDITION, "using Wald test", sep=" ")))
+        dev.off()
     } else if (SIGNIFICANCE_TEST == "lrt") {
         write.csv(as.data.frame(res_no_padjLRT_sort), file=paste(ALL_DEG_DIR,paste(CONDITION,'allGenes.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
-        write.csv(as.data.frame(resSortLRT), file=paste(DATA_DIR,paste(CONDITION,'combined.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        write.csv(as.data.frame(resSortLRT), file=paste(ALL_DEG_DIR,paste(CONDITION,'combined.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
         upreg_genes_lrt <- which(resSortLRT$log2FoldChange >= 0)
         resSortLRT_upreg <- resSortLRT[upreg_genes_lrt,]
-        # write.csv(as.data.frame(resSortLRT_upreg), file=paste(DATA_DIR,paste(CONDITION,'upreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        write.csv(as.data.frame(resSortLRT_upreg), file=paste(DATA_DIR,paste(CONDITION,'upreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
         downreg_genes_lrt <- which(resSortLRT$log2FoldChange < 0)
         resSortLRT_downreg <- resSortLRT[downreg_genes_lrt,]
-        # write.csv(as.data.frame(resSortLRT_downreg), file=paste(DATA_DIR,paste(CONDITION,'downreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        write.csv(as.data.frame(resSortLRT_downreg), file=paste(DATA_DIR,paste(CONDITION,'downreg.csv',sep="_"), sep="/"), row.names=FALSE, quote=FALSE)
+        pdf(paste(FULL_OUTDIR,paste(CONDITION,'volcano_plot_lrt.pdf',sep="_"), sep="/"), width = 10, height = 10)
+        EnhancedVolcano(res_sym_frontLRT, 
+                    lab = res_sym_frontLRT$gene_name, 
+                    x = 'log2FoldChange', 
+                    y = 'padj', 
+                    xlim = c(-5, 5),
+                    pCutoff = PVAL_THRESH,
+                    FCcutoff = 0,
+                    pointSize = 3.0,
+                    labSize = 4.0,
+                    title = paste("Volcano Plot for", CONDITION, "using LRT", sep=" "))
+        dev.off()
     }
     print('done')
 } 
