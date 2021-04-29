@@ -1,4 +1,5 @@
-<img src="https://github.com/ashleymaeconard/XvsY/blob/develop2/xvsy_logo.PNG" height="150" alt="XvsY Logo">
+<img src="https://github.com/ashleymaeconard/XvsY/blob/develop2/xvsy_logo.PNG" height="100" alt="XvsY Logo">
+
 ## XvsY
 ## RNA-seq Analysis Pipeline for data across seg and time
 CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development in Drosophila
