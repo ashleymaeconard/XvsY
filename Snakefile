@@ -2,23 +2,21 @@ configfile: "config.yaml"
 
 path=config['outdir'] #should end with a '/'
 
-# rule run_deseq2_2ex:
-# 	# input: expand(path+"{metadata}", metadata=config["metadata"]), expand(path+"{counts}", counts=config["counts"]), expand(path)
-# 	# input: expand(path)
-# 	output: directory(expand(path+"data"))
-# 	shell:
-# 		'''
-# 		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
-# 		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
-# 		'''
-
-rule run_deseq2_3ex:
+rule run_deseq2:
 	output: directory(expand(path+"data"))
 	shell:
 		'''
-		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
-		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
-		Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition3]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control3]} {config[stat_test]} {config[read_threshold]}
+		if [ {config[num_comps]} -eq 2 ]
+		then
+			Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
+			Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
+		fi
+		if [ {config[num_comps]} -eq 3 ]
+		then
+			Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control]} {config[stat_test]} {config[read_threshold]}
+			Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition2]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control2]} {config[stat_test]} {config[read_threshold]}
+			Rscript scripts/deseq2_comparison_final.r {config[metadata]} {config[counts]} {path} {config[condition3]} {config[batch_effect]} {config[time_course]} {config[pval_threshold]} {config[organism]} {config[control3]} {config[stat_test]} {config[read_threshold]}
+		fi
 		'''
 
 rule get_ids:
@@ -52,7 +50,7 @@ rule make_boxplots:
 	output:
 		directory(expand(path+"comparisons/overall_boxplots"))
 	shell:
-		"python scripts/allBoxPlots.py -f {input} -d {path}'data' -s {output}"	
+		"python scripts/allBoxPlots.py -f {input} -d {path}'data' -s {output}"
 
 rule make_XAboxplots:
 	input:
@@ -60,7 +58,7 @@ rule make_XAboxplots:
 	output:
 		directory(expand(path+"comparisons/xa_boxplots"))
 	shell:
-		"python scripts/xaBoxPlotsfinal.py -f {input} -d {path}'data' -s {output}"	
+		"python scripts/xaBoxPlotsfinal.py -f {input} -d {path}'data' -s {output}"
 
 rule global_boxplots:
 	input:
@@ -76,7 +74,7 @@ rule go_analysis:
 	output:
 		directory(expand(path+"go_analysis/clusters"))
 	shell:
-		"./scripts/runGOall.sh {input} {output} {config[sep_tps]} {config[organism]} {config[go_pval]}"	
+		"./scripts/runGOall.sh {input} {output} {config[sep_tps]} {config[organism]} {config[go_pval]}"
 
 rule go_summary:
 	input:

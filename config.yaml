@@ -1,3 +1,4 @@
+num_comps: 2
 batch_effect: 0
 time_course: 0
 pval_threshold: 0.05
