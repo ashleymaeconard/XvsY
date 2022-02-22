@@ -3,7 +3,7 @@
 </p>
 
 ## tool to identify shared and distinct genomic signatures from multiple expression and protein-DNA interaction data sets over time
-!<---CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development in Drosophila-->
+!<--CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development in Drosophila-->
 
 ![illustration of pipline](https://github.com/ashleymaeconard/XvsY/blob/develop2/detailed_workflow.PNG)
 
