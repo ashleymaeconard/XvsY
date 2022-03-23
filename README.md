@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-  <img src="https://github.com/ashleymaeconard/XvsY/blob/develop2/xvsy_logo.PNG" height="100" alt="XvsY Logo">
+  <img src="https://github.com/ashleymaeconard/XvsY/blob/develop_manu_prep/xvsy_logo.PNG" height="100" alt="XvsY Logo">
 </p>
 
 ## Identify shared and distinct genomic signatures from multiple expression and protein-DNA interaction data sets over time
