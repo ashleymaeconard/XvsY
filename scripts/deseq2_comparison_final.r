@@ -1,9 +1,9 @@
+
 # deseq2_comparison.r
 # Purpose: run DESeq2 in case vs. control conditions
-# Input: 1) metadata file, 2) count matrix file, 3) desired output directory, 4) condition name, and are there 5) batch effects or 6) time components for the experiment set at 7) adj. p-value threshold  
-# Output: 1) MA plots (normal and no shrinkage), 2) venn diagram of LRT vs. Wald test (no shrinkage), 3) clustermap differentially expressed gene .csv (normal and no shrinkage), 4) DESeq2 differentially expressed gene output .csvs (normal and no shrinkage) for differentially expressed genes and all genes
-# Last Mod: Nov. 19, 2010
-# Ashley Conard
+#       Input: 1) metadata file, 2) count matrix file, 3) desired output directory, 4) condition name, and are there 5) batch effects or 6) time components for the experiment set at 7) adj. p-value threshold  
+#       Output: 1) MA plots (normal and no shrinkage), 2) venn diagram of LRT vs. Wald test (no shrinkage), 3) clustermap differentially expressed gene .csv (normal and no shrinkage), 4) DESeq2 differentially expressed gene output .csvs (normal and no shrinkage) for differentially expressed genes and all genes
+# Last mod. 02/22/2022
 
 #Input arguments
 args = commandArgs(trailingOnly=TRUE)

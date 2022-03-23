@@ -1,8 +1,7 @@
-# Ashley Mae Conard
 # clusterProfiler.r
-# Last Modified: September 2020 by Isaac Nathoo
-# Runs clusterProfiler to find and visualize gene enrichment within each cluster.
-# References: https://yulab-smu.github.io/clusterProfiler-book/chapter12.html
+# Purpose: runs clusterProfiler to find and visualize gene enrichment within each cluster.
+# Reference: TIMEOR
+# Last mod. 02/22/2022
 
 # CHECKING ARGUMENTS
 args = commandArgs(trailingOnly=TRUE)
@@ -24,7 +23,7 @@ if (length(args)==0) {
 }
 
 # ASSIGNING INPUT ARGUMENTS
-IN_OUTPUT <- args[1] #e.g. ~/timeor/results/primary/
+IN_OUTPUT <- args[1] 
 EXPERIMENT_NAME <- args[2] # without "_results" added
 SEP_TPS <- args[3] # 0 or 1
 ORGANISM <- args[4] # dme (Drosophila melanogaster), hsa (Homo sapiens), mmu (Mus musculus)

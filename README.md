@@ -2,14 +2,26 @@
   <img src="https://github.com/ashleymaeconard/XvsY/blob/develop2/xvsy_logo.PNG" height="100" alt="XvsY Logo">
 </p>
 
-## tool to identify shared and distinct genomic signatures from multiple expression and protein-DNA interaction data sets over time
+## Identify shared and distinct genomic signatures from multiple expression and protein-DNA interaction data sets over time
 <!---CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development in Drosophila-->
 
 ![illustration of pipline](https://github.com/ashleymaeconard/XvsY/blob/develop2/detailed_workflow.PNG)
 
-## The Snakemake Pipeline
+## Quick Start: 3 Steps
 
-Snakemake is a workflow management system that was used to create a reproducible and scalable pipeline for RNA-seq analyses, named XvsY, that the user can interact with through the command line. This includes tools to determine the differentially egpressed genes based on read count data using DESeq2, find intersections between  gene sets using Intervene, generate global X vs autosome violin plots and comparative fold change box plots, conduct gene ontology analysis using clusterProfiler, and perform motif analysis using MEME and FIMO from the MEMESuite.
+## Paper and Citation
+
+## Overview
+
+## Installation
+
+## Run XvsY
+
+## Details
+
+### Snakemake framework
+
+We adopted Snakemake as a workflow management system to create a reproducible and scalable pipeline. that the user can interact with through the command line. This includes tools to determine the differentially egpressed genes based on read count data using DESeq2, find intersections between  gene sets using Intervene, generate global X vs autosome violin plots and comparative fold change box plots, conduct gene ontology analysis using clusterProfiler, and perform motif analysis using MEME and FIMO from the MEMESuite.
 
 To create the environment required to run XvsY, use the following command from the terminal:
 ```bash
@@ -110,11 +122,11 @@ python csv_to_id.py -f CSV
 ```
 (to generate tegt file list of FlyBase IDs from differential egpression results CSV file, used in *all_csv_to_id.sh*)
 ```bash
-python gtf_to_bed2.py -f /PATH/TO/genes.gtf -s /PATH/TO/SAVE/genes_gtf.bed
+python gtf_to_bed.py -f /PATH/TO/genes.gtf -s /PATH/TO/SAVE/genes_gtf.bed
 ```
 (to create BED file from GTF to get gene names, chromosome, start and end, used in *all_id_to_gene.sh*)
 ```bash
-python id_to_gene3.py -t /PATH/TO/TXT_FILE -b /PATH/TO/genes_gtf.bed
+python id_to_gene_map.py -t /PATH/TO/TXT_FILE -b /PATH/TO/genes_gtf.bed
 ```
 (to create BED files to Get genes from FlyBase IDs in unique sets from Intervene, used in *all_id_to_gene.sh*)
 
@@ -126,7 +138,7 @@ To generate global X vs A boxplots for a given gene set in BED file format (from
 
 To generate violin plots comparing the X vs A fold change between two gene groups in BED file format, use the rule **global_boxplots**.
 
-These rules call the scripts, allBoxPlots.py, xaBoxPlotsfinal.py, and global_XAv5.py, which use the Seaborn package in Python to generate plots to visualize these comparisons.
+These rules call the scripts, allBoxPlots.py, xaBoxPlotsfinal.py, and global_XA.py, which use the Seaborn package in Python to generate plots to visualize these comparisons.
 
 ## GO Analysis (YELLOW)
 To run gene ontology (GO) analysis to determine the enriched biological processes (BP), molecular function (MF), and cellular component (CC) of given gene set as a BED file for all BED files in directory, use the rule **go_analysis**.

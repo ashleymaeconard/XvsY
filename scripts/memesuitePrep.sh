@@ -1,4 +1,8 @@
 #!/bin/bash
+# memesuitePrep.sh
+# Purpose: prepare inputs for MEME suite
+# Last mod. 02/22/2022
+
 if [ $# -ne 6 ]; then
 	echo "Usage: ./runMEMEall.sh
 		1) /PATH/TO/BED_DIR

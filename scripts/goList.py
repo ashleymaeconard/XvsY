@@ -1,3 +1,7 @@
+# goList.py
+# Purpose: structure GO terms in summary subdirectories
+# Last mod. 02/22/2022
+
 import pandas as pd
 import numpy as np
 import argparse

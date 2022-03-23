@@ -1,3 +1,7 @@
+# csv_to_id.py
+# Purpose: converts .csv to ids
+# Last mod. 02/22/2022
+
 import pandas as pd
 import numpy as np
 import argparse

@@ -1,7 +1,6 @@
-# Ashley Mae Conard
-# meme_prep_fimo.py
-# Last Modified: July 7, 2019
-# Creates MEME input list of DNA sequences for a set of genes
+# meme_prep_indiv_cluster.py
+# Purpose: prepare MEME to run on each group/cluster
+# Last mod. 02/22/2022
 
 # Checking for arguments
 import sys

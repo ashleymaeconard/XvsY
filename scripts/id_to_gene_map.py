@@ -1,3 +1,7 @@
+# id_to_gene_map.py
+# Purpose: map IDs to gene to save as .bed file
+# Last mod. 02/22/2022
+
 import pandas as pd
 import numpy as np
 import argparse

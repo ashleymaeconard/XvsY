@@ -1,3 +1,8 @@
+# fimo_summary.py
+# Purpose: produces summary of FIMO results
+# Reference: https://meme-suite.org/meme/doc/fimo.html
+# Last mod. 02/22/2022
+
 import pandas as pd
 import numpy as np
 import argparse

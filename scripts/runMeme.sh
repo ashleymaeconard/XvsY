@@ -1,4 +1,9 @@
 #!/bin/bash
+# runMeme.sh
+# Purpose: prepare inputs to run MEME
+# Reference: https://meme-suite.org/meme/
+# Last mod. 02/22/2022
+
 if [ $# -ne 1 ]; then
 	echo "Usage: ./runMeme.sh
 	1) /PATH/TO/FOLDERS/WITH/GENELISTS (CLUSTERS)"

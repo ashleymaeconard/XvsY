@@ -1,4 +1,9 @@
 #!/bin/bash
+# runFIMO.sh
+# Purpose: prepare inputs to run FIMO
+# Reference: https://meme-suite.org/meme/doc/fimo.html
+# Last mod. 02/22/2022
+
 if [ $# -ne 2 ]; then
 	echo "Usage: ./runMeme.sh
 	1) /PATH/TO/FOLDERS/WITH/GENELISTS (CLUSTERS)

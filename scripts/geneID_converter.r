@@ -1,6 +1,6 @@
 # geneID_converter.r
-# Ashley Conard
-# Last Modified: Aug. 9, 2019
+# Purpose: converts gene ID/symbols for Drosophila melanogaster
+# Last mod. 02/22/2022
 # Resource: function get.symbolIDsDm TAKEN FROM https://www.researchgate.net/publication/308990864_R_function_getsymbolIDsDm_to_convert_Uniprot_Flybase_etc_to_gene_symbol
 
 

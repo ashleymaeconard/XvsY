@@ -1,3 +1,7 @@
+# global_XA.py
+# Purpose: plot global X v.s. autosomes
+# Last mod. 02/22/2022
+
 import pandas as pd
 import numpy as np
 import argparse

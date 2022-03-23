@@ -1,4 +1,8 @@
 #!/bin/bash
+# runGOall.sh
+# Purpose: prepare inputs to run GO analysis with clusterProfiler
+# Last mod. 02/22/2022
+
 if [ $# -ne 5 ]; then
 	echo "Usage: ./runGOall.sh
 		1) /PATH/TO/BED_DIR

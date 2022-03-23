@@ -1,3 +1,7 @@
+# bed_to_geneListcsv.py
+# Purpose: convert .bed to gene list
+# Last mod. 02/22/2022
+
 import pandas as pd
 import numpy as np
 import argparse

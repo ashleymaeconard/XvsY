@@ -66,7 +66,7 @@ rule global_boxplots:
 	output:
 		directory(expand(path+"comparisons/global_boxplots"))
 	shell:
-		"python scripts/global_XAv5.py -f {input} -s {output} -g {config[gtf_bed]}"
+		"python scripts/global_XA.py -f {input} -s {output} -g {config[gtf_bed]}"
 
 rule go_analysis:
 	input:
