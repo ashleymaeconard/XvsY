@@ -1,5 +1,10 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 <p align="center" width="100%">
-  <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/xvsy_logo.PNG" height="100" alt="XvsY Logo">
+  <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/figs/xvsy_logo.PNG" height="100" alt="XvsY Logo">
 </p>
 
 ## Identify shared and distinct molecular signatures across multiple experiments and time
@@ -168,10 +173,7 @@ Here are the list of XvsY rules in the Snakefile workflow, and their correspondi
 <p align="center">
     <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/snakemake_dag.PNG" width="500" alt="Snakemake Pipeline DAG">
 </p>
-<!-- ![Snakemake Pipeline DAG](https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/snakemake_dag.PNG) -->
-
-<!-- ask ashley if there is a way to create a tree connecting these rules so users can see what rule is required for what -->
-<!-- also add in scripts to go from fastq raw data files to read counts? -->
+**Figure 2**: The XvsY Snakemake workflow can be shown as a directed acyclic graph of XvsY rules to allow the user to start at any rule (rectangle), given that its inputs are present, and run until any connecting rule. The colors are associated with the steps in Figure 1. The paths illustrate the rules to be executed and their associated dependencies.
 
 Once the `--config flag` is set, make `outdir` equal to the directory containing the Snakefile, the scripts, and the data, as this is the directory in which XvsY will generate all of its outputs. That means that `outdir` is the base directory where all results will be stored.
 
