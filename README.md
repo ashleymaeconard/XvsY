@@ -1,4 +1,6 @@
-<img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/figs/xvsy_logo.PNG" height="100" alt="XvsY Logo">
+<p align="center" width="100%">
+  <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/xvsy_logo.PNG" height="100" alt="XvsY Logo">
+</p>
 
 ## Identify shared and distinct molecular signatures across multiple experiments and time
 ### Focus on multiple expression and protein-DNA interaction data sets over time
