@@ -1,9 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-
 <p align="center" width="100%">
   <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/figs/xvsy_logo.PNG" height="100" alt="XvsY Logo">
 </p>
