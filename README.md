@@ -183,33 +183,33 @@ $ snakemake -R --until go_summary --cores 1 --config outdir='~/xvsy_test/test/' 
 Should the user prefer to run individual rules, below are specifications for which rule to run, and when. 
 
 ## Identify distinct and shared groups through differential expression and intersections (pink)
-Use rule **run_deseq2** to first determine differentially expressed genes (DEGs) from the RNA-seq read count data using DESeq2.
+Use rule `run_deseq2` to first determine differentially expressed genes (DEGs) from the RNA-seq read count data using DESeq2.
 
-Using those DEG results per context, each context can then be overlapped using Intervene by first running the rule **get_ids** and then **find_intersections**. 
-**get_ids** generates a text file with the gene IDs (eg. the FlyBase ID for *Drosophila* genes) from the .csv file that is output by DESeq2. 
-**find_intersections** then runs Intervene on these text files to generate an overlap to both visualize the overlaps and create text files of the created groups (i.e. gene IDs in each overlap).
+Using those DEG results per context, each context can then be overlapped using Intervene by first running the rule `get_ids` and then `find_intersections`. 
+`get_ids` generates a text file with the gene IDs (eg. the FlyBase ID for *Drosophila* genes) from the .csv file that is output by DESeq2. 
+`find_intersections` then runs Intervene on these text files to generate an overlap to both visualize the overlaps and create text files of the created groups (i.e. gene IDs in each overlap).
 
-Next, the rule **get_gene** generates .bed files for each group by getting the gene name, chromosome number, start site, and end site, in that order.
+Next, the rule `get_gene` generates .bed files for each group by getting the gene name, chromosome number, start site, and end site, in that order.
 
 ## Uncover fold-change differences for distinct and shared groups (yellow)
 
-To generate global context chromosome notch plots for a given context, use the  **make_XAboxplots** rule. NOTE, while the rule says box plots, they are now notch plots. This verbage will be updated in a future version.
+To generate global context chromosome notch plots for a given context, use the  `make_XAboxplots` rule. NOTE, while the rule says box plots, they are now notch plots. This verbage will be updated in a future version.
 
-Use the **make_boxplots** rule to compare the fold-changes between two or more of these groups. NOTE, while the rule says box plots, they are now violin plots. This verbage  will be updated in a future version.
+Use the `make_boxplots` rule to compare the fold-changes between two or more of these groups. NOTE, while the rule says box plots, they are now violin plots. This verbage  will be updated in a future version.
 
-To generate violin plots comparing the X vs. A fold-change between two gene groups, use the rule **global_boxplots**. NOTE, while the rule says box plots, they are now violin plots. This verbage  will be updated in a future version.
+To generate violin plots comparing the X vs. A fold-change between two gene groups, use the rule `global_boxplots`. NOTE, while the rule says box plots, they are now violin plots. This verbage  will be updated in a future version.
 
 ## Characterize mechanism for distinct and shared groups (green)
-To run gene ontology (GO) analysis to determine the enriched biological processes (BP), molecular function (MF), and cellular component (CC) of given DEG group or for all groups in a directory, use the rule **go_analysis**.
+To run gene ontology (GO) analysis to determine the enriched biological processes (BP), molecular function (MF), and cellular component (CC) of given DEG group or for all groups in a directory, use the rule `go_analysis`.
 
-Then, use the **go_summary** rule to create summary tables for each category (one for BP, MF, and CC separately) containing the top GO term for each group.
+Then, use the `go_summary` rule to create summary tables for each category (one for BP, MF, and CC separately) containing the top GO term for each group.
 
 ## Find motifs and binding regions for distinct and shared groups (purple)
-To perform *de novo* motif discovery and motif finding for a given transcription factor (TF) of interest, first use **meme_suite_prep** to generate the .fastq files for each group. These are needed to subsequently run MEME and/or FIMO.
+To perform *de novo* motif discovery and motif finding for a given transcription factor (TF) of interest, first use `meme_suite_prep` to generate the .fastq files for each group. These are needed to subsequently run MEME and/or FIMO.
 
-To run MEME analysis which returns the top three *de novo* motifs for each DEG group, use the rule **run_meme**.
+To run MEME analysis which returns the top three *de novo* motifs for each DEG group, use the rule `run_meme`.
 
-To run FIMO analysis which searches across group DEG members to find individual matches to the TF motif provided, use the rule **run_fimo**. This rule requires an input TF position weight matrix (PWM) for the TF of interest. XvsY then generates a summary of the FIMO results as a table showing the percentage of a each motif.
+To run FIMO analysis which searches across group DEG members to find individual matches to the TF motif provided, use the rule `run_fimo`. This rule requires an input TF position weight matrix (PWM) for the TF of interest. XvsY then generates a summary of the FIMO results as a table showing the percentage of a each motif.
 
 ## Choosing between tests
 In the second stage, each group is compared intra and inter-context (yellow, Figure 1). Specifically, XvsY outputs: 1) global context chromosome level notch plots with a heatmap significance table highlighting significant expression differences across chromosomes; 2) expression fold-change violin plots for shared group differentially expressed genes; and 3) X vs. autosome violin plots for genes that are upregulated and downregulated within and between group (Figure 2).  For each type of plot, there are three significance measures that are output. For example, in the first global context chromosome level notch plot, the significance of the difference in expression between each pair of chromosomes is computed using 3 tests, the t-test, Kolmogorov-Smirnov (KS) test, and Mann-Whitney (MW) U test (also called Wilcoxon Rank-Sum test). The resulting p-values are displayed in a heatmap with the darker values indicating stronger significance. Due to the issue of multiple comparisons, all p-values are adjusted using the Benjamini-Hochberg (BH) correction method. The user has the choice of deciding which test best fits their hypothesis. 
