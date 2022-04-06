@@ -3,13 +3,15 @@ output:
   pdf_document: default
   html_document: default
 ---
-<img src="/Users/ashleyconard/Documents/my_projects/xvsy/XvsY/xvsy_logo.PNG">
+<p align="center" width="100%">
+  <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/figs/xvsy_logo.PNG" height="100" alt="XvsY Logo">
+</p>
 
 ## Identify shared and distinct molecular signatures across multiple experiments and time
 ### Focus on multiple expression and protein-DNA interaction data sets over time
 <!---CLAMP-null vs CLAMP RNAi vs MSL2 RNAi Effects on Brain Development in Drosophila-->
 
-<!---![illustration of pipline](https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/detailed_workflow.PNG)-->
+![illustration of pipline](https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/detailed_workflow.PNG)
 
 **Figure 1**: XvsY enables the user to compare multi-dimensional experiments efficiently and report downstream analyses. First (pink box), given all or selected contexts, the user can choose to run through differential expression analysis and overlap each experiment’s differentially expressed genes (DEGs) to identify distinct and shared features. Second (yellow box), the user can choose to characterize differences, followed by determining mechanism through gene ontology (green box). Lastly (purple box), the user can choose to investigate the upstream gene group targets through motif analysis. The right side illustrates several tool outputs from our proof-of-concept study. Importantly, this analysis can be performed on any experiments that have multiple conditions, and the process can be initiated from anywhere in the pipeline. For example, should the user have differential protein abundances, the user could begin with the intersection step in the pink box. Black boxes denote processing steps. Dotted lines denote an analysis step with output for the user. TF: transcription factor.
 
