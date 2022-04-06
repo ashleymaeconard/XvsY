@@ -78,7 +78,7 @@ We adopted Snakemake as a workflow management system to create a reproducible an
 
 The `scripts/` directory contains all the Python, R, and bash scripts required to run XvsY. The genomes directory contains the Drosophila genes GTF file, the chromosome FA file, and the reformatted genes file (from the GTF). The PWMs directory contains the PWMs required for FIMO analysis (if desired).
 
-The `readcounts/` directory contains our proof-of-concept data information. Specifically, 1) the metadata file with four columns: experiment ID, batch, condition name, timepoint, and 2) the raw read-count data obtained after running HISAT2 and HTSeq. Each column corresponds to a row in the metadata file and each row corresponds to a gene ID.
+The `readcounts/` directory contains our proof-of-concept data information. Specifically, 1) the metadata file with four columns: experiment ID, batch, condition name, time point, and 2) the raw read-count data obtained after running HISAT2 and HTSeq. Each column corresponds to a row in the metadata file and each row corresponds to a gene ID.
 
 ## Run steps
 Run XvsY fully through using the following commands in terminal:
@@ -89,13 +89,13 @@ $snakemake -R --until <RULE> --cores 1 --config outdir='/PATH/TO/OUTPUT/DIRECTOR
 After the `--until` flag, you can select any rule from the Snakefile, and the pipeline will run through until that specified rule. See [rules](#rules) for details.
 
 ## Rules
-Here are the list of XvsY rules in the Snakefile workflow, and their corresponding `config` flags. Note acronyms and definitions. *DEGs*: differentially expressed genes; *context*: experiments, replicates and conditions in those experiments, and any time points or other conditions such as sex in those conditions; *group*: the resulting DEG sets after finding intersections (i.e. overlaps); *distinct* DEGs: the set of DEGs beloning only to that context; *shared* DEGs: the set of DEGs beloning to two or more contexts. See Figure 1 above for pictoral  representation.
+Here are the list of XvsY rules in the Snakefile workflow, and their corresponding `config` flags. Note acronyms and definitions. *DEGs*: differentially expressed genes; *GO*: gene ontology; *context*: experiments, replicates and conditions in those experiments, and any time points or other conditions such as sex in those conditions; *group*: the resulting DEG sets after finding intersections (i.e. overlaps); *distinct* DEGs: the set of DEGs beloning only to that context; *shared* DEGs: the set of DEGs beloning to two or more contexts. See Figure 1 above for pictoral  representation.
 
 * `run_deseq2` 
   * runs DESeq2 for each set of experiments independently, so to compare input contexts (e.g. experiment 1's case vs. control, then experiment 2's case vs. control)
   * `config` flags:
     * `num_comps`: 2 or 3 
-        * number of experiments/timepoints to be compared
+        * number of experiments/time points to be compared
     * `metadata`: <PATH/TO/METADATA>
         * example 'readcounts/metadata_allSamples_full.csv'
     *  `counts`: <PATH/TO/READ-COUNTS>
@@ -131,14 +131,17 @@ Here are the list of XvsY rules in the Snakefile workflow, and their correspondi
       * example: 'genomes/genes.gtf'
       * this is the location of the genome annotation file
 * `make_boxplots`
-  * uses each .bed file to compare the fold changes between all pairs of DEG groups and DEG contexts
+  * uses each .bed file to compare the fold-changes between all pairs of DEG groups and DEG contexts
 * `make_XAboxplots`
-  * uses each .bed file to compare the fold changes of the DEGs located on the X chromosome vs the autosomes between different sets
+  * uses each .bed file to compare the fold-changes of the DEGs on the X chromosome vs. the autosomes between contexts.
 * `global_boxplots` 
-  * uses the outputs of deseq2 to generate global X vs A plots and look at the fold changes across all chromosomes
-* go_analysis - this rule uses the .bed files to run gene ontology analysis for each gene set
-  * config flags:
-    * sep_tps=0 or 1 (set to 1 to run GO for each timepoint separately, 0 otherwise)
+  * uses DESeq2 outputs to generate global context chromosome box plots depicting fold-changes across all chromosomes
+* `go_analysis`
+  * uses each .bed file to run gene ontology (GO) analysis for each group
+  * `config` flags:
+    * `sep_tps`: 0 or 1 
+      * 1 to run GO for each time point separately, 0 otherwise
+      * stands for separate time points
     * organism='dme'
     * go_pval=0.05
 * go_summary - this rule uses the information from each GO cluster to generate summary tables for each GO category
@@ -191,13 +194,13 @@ python id_to_gene_map.py -t /PATH/TO/TXT_FILE -b /PATH/TO/genes_gtf.bed
 ```
 (to create BED files to Get genes from FlyBase IDs in unique sets from Intervene, used in *all_id_to_gene.sh*)
 
-## Fold Change Comparison between gene sets (GREEN)
-To compare the fold changes between two or more of these gene sets in BED file format (from the intersections), use the rule **make_boxplots**.
+## fold-change Comparison between gene sets (GREEN)
+To compare the fold-changes between two or more of these gene sets in BED file format (from the intersections), use the rule **make_boxplots**.
 
 ### X vs A Plots
 To generate global X vs A boxplots for a given gene set in BED file format (from the intersections), use the rule **make_XAboxplots**.
 
-To generate violin plots comparing the X vs A fold change between two gene groups in BED file format, use the rule **global_boxplots**.
+To generate violin plots comparing the X vs A fold-change between two gene groups in BED file format, use the rule **global_boxplots**.
 
 These rules call the scripts, allBoxPlots.py, xaBoxPlotsfinal.py, and global_XA.py, which use the Seaborn package in Python to generate plots to visualize these comparisons.
 
