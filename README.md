@@ -135,26 +135,35 @@ Here are the list of XvsY rules in the Snakefile workflow, and their correspondi
 * `make_XAboxplots`
   * uses each .bed file to compare the fold-changes of the DEGs on the X chromosome vs. the autosomes between contexts.
 * `global_boxplots` 
-  * uses DESeq2 outputs to generate global context chromosome box plots depicting fold-changes across all chromosomes
+  * uses DESeq2 outputs to generate global context chromosome notch plots depicting fold-changes across all chromosomes
 * `go_analysis`
   * uses each .bed file to run gene ontology (GO) analysis for each group
   * `config` flags:
     * `sep_tps`: 0 or 1 
       * 1 to run GO for each time point separately, 0 otherwise
-      * stands for separate time points
-    * organism='dme'
-    * go_pval=0.05
-* go_summary - this rule uses the information from each GO cluster to generate summary tables for each GO category
-* meme_suite_prep -  this rule uses the .bed files to generate FASTA files for the genes and other inputs for MEME/FIMO
-  * config flags:
-    * reform_genes='genomes/REFORMATTED_GENES.CSV' (eg. 'genomes/reformatted_genes_gtf.csv')
-    * chrom_fa='genomes/ORG.FA' (eg. 'genomes/dm6.fa')
-    * tss_only=1 (set to 1 to run +-1kb from transcription start site, 0 otherwise)
+      * stands for 'separate time points'.
+    * `organism`: 'dme'
+    * `go_pval`: 0.05
+      * any continuous value between (0-1]
+* `go_summary` 
+  * collates information across all groups GO analyses to create a summary table per category (biological process, molecular function, cellular component).
+* `meme_suite_prep` 
+  * uses .bed files to generate .fastq files for input into MEME and/or FIMO
+  * `config` flags:
+    * `reform_genes`: <PATH/TO/XvsY/genomes/REFORMATTED_GENES.CSV>
+        * example: 'genomes/reformatted_genes_gtf.csv'
+    * `chrom_fa`: <PATH/TO/genomes/ORG.FA> 
+        * example: 'genomes/dm6.fa'
+    * `tss_only`: 1 or 0 
+        * 1 to run +-1kb from transcription start site, 0 to consider gene body region.
     *  organism='dme'
-* run_meme - this rule uses the FASTA files to run MEME and find the top 3 de novo motifs
-* run_fimo - this rule uses the FASTA files to run FIMO and find the TF binding motif across all genes based on the PWM
-  * config flags:
-    * pwm_path='pwms/PWM_OF_INTEREST.txt' (eg. 'pwms/meme_CLAMP_overlap_GAF.txt')
+* `run_meme`
+    * uses .fastq files to run MEME and return the top 3 *de novo* motifs
+* `run_fimo` 
+    * uses 1) .fastq files and 2) input position weight matrix (PWM) to run FIMO and find TF binding motifs across groups of DEGs
+    * `config` flags:
+      * `pwm_path`: <PATH/TO/pwms/PWM_OF_INTEREST.txt> 
+        * 'pwms/meme_CLAMP_overlap_GAF.txt'
 
 <p align="center">
     <img src="https://github.com/ashleymaeconard/XvsY/blob/dev_manu_prep/snakemake_dag.PNG" width="500" alt="Snakemake Pipeline DAG">
@@ -164,56 +173,47 @@ Here are the list of XvsY rules in the Snakefile workflow, and their correspondi
 <!-- ask ashley if there is a way to create a tree connecting these rules so users can see what rule is required for what -->
 <!-- also add in scripts to go from fastq raw data files to read counts? -->
 
-After the --config flag, set outdir equal to the directory containing the Snakefile, the scripts, and your data, as this is the directory in which XvsY will generate all of its outputs (*outdir* is the base directory).
+Once the `--config flag` is set, make `outdir` equal to the directory containing the Snakefile, the scripts, and the data, as this is the directory in which XvsY will generate all of its outputs. That means that `outdir` is the base directory where all results will be stored.
 
-For egample, to run the XvsY Snakemake Pipeline until the go_summary rule, run the following command from the terminal:
+## XvsY example/ demo run
+For example, to run the XvsY Snakemake pipeline until the `go_summary` rule for GO analysis, assuming the user is in the cloned XvsY directory, run the following one line command from the terminal:
 ```bash
-snakemake -R --until go_summary --cores 1 --config outdir='/data/compbio/inathoo/snakemake_test/test10/' metadata='readcounts/metadata_allSamples_full.csv' counts='readcounts/FB_gene_ByCondition_countTable_full.csv' condition='cRNAi_e' condition2='mRNAi_e' batch_effect=0 time_course=0 pval_threshold=0.05 organism='dme' control='elavGRFP_e' control2='elavGRFP_e' stat_test='wald' read_threshold=3 gtf_path='genomes/genes.gtf' sep_tps=0 organism='dme' go_pval=0.05
+$ snakemake -R --until go_summary --cores 1 --config outdir='~/xvsy_test/test/' metadata='readcounts/metadata_allSamples_full.csv' counts='readcounts/FB_gene_ByCondition_countTable_full.csv' condition='cRNAi_e' condition2='mRNAi_e' batch_effect=0 time_course=0 pval_threshold=0.05 organism='dme' control='elavGRFP_e' control2='elavGRFP_e' stat_test='wald' read_threshold=3 gtf_path='genomes/genes.gtf' sep_tps=0 organism='dme' go_pval=0.05
 ```
+Should the user prefer to run individual rules, below are specifications for which rule to run, and when. 
 
-## Intersections (BLUE)
-First to determine the differentially expressed genes from the RNA-seq read count data, DESeq2 is used in the rule **run_deseq2**.
+## Identify distinct and shared groups through differential expression and intersections (pink)
+Use rule **run_deseq2** to first determine differentially expressed genes (DEGs) from the RNA-seq read count data using DESeq2.
 
-Using differential egpression results from DESeq2, gene sets can be overlapped using Intervene by first running the rule **get_ids** and then **find_intersections**. The rule **get_ids** will generate a text file with the gene IDs (eg. the FlyBase ID for Drosophila genes) from the CSV file outputted by DESeq2. The rule **find_intersections** will then run Intervene on these text files to generate a bar plot to visualize the size of the overlaps as well as text files containing the gene IDs in each overlap.
+Using those DEG results per context, each context can then be overlapped using Intervene by first running the rule **get_ids** and then **find_intersections**. 
+**get_ids** generates a text file with the gene IDs (eg. the FlyBase ID for *Drosophila* genes) from the .csv file that is output by DESeq2. 
+**find_intersections** then runs Intervene on these text files to generate an overlap to both visualize the overlaps and create text files of the created groups (i.e. gene IDs in each overlap).
 
-Negt, the rule **get_gene** will generate BED files for the genes in each of these intersections by getting the chromosome number, start site, end site, and gene name.
+Next, the rule **get_gene** generates .bed files for each group by getting the gene name, chromosome number, start site, and end site, in that order.
 
-These scripts will generate Venn Diagrams and Bar Plots to visualize the intersections and they will also generate BED files for the gene sets in each overlap.
+## Uncover fold-change differences for distinct and shared groups (yellow)
 
-Additionally, these intersection scripts rely on individual python scripts:
-```bash
-python csv_to_id.py -f CSV
-```
-(to generate text file list of FlyBase IDs from differential egpression results CSV file, used in *all_csv_to_id.sh*)
-```bash
-python gtf_to_bed.py -f /PATH/TO/genes.gtf -s /PATH/TO/SAVE/genes_gtf.bed
-```
-(to create BED file from GTF to get gene names, chromosome, start and end, used in *all_id_to_gene.sh*)
-```bash
-python id_to_gene_map.py -t /PATH/TO/TXT_FILE -b /PATH/TO/genes_gtf.bed
-```
-(to create BED files to Get genes from FlyBase IDs in unique sets from Intervene, used in *all_id_to_gene.sh*)
+To generate global context chromosome notch plots for a given context, use the  **make_XAboxplots** rule. NOTE, while the rule says box plots, they are now notch plots. This verbage will be updated in a future version.
 
-## fold-change Comparison between gene sets (GREEN)
-To compare the fold-changes between two or more of these gene sets in BED file format (from the intersections), use the rule **make_boxplots**.
+Use the **make_boxplots** rule to compare the fold-changes between two or more of these groups. NOTE, while the rule says box plots, they are now violin plots. This verbage  will be updated in a future version.
 
-### X vs A Plots
-To generate global X vs A boxplots for a given gene set in BED file format (from the intersections), use the rule **make_XAboxplots**.
+To generate violin plots comparing the X vs. A fold-change between two gene groups, use the rule **global_boxplots**. NOTE, while the rule says box plots, they are now violin plots. This verbage  will be updated in a future version.
 
-To generate violin plots comparing the X vs A fold-change between two gene groups in BED file format, use the rule **global_boxplots**.
+## Characterize mechanism for distinct and shared groups (green)
+To run gene ontology (GO) analysis to determine the enriched biological processes (BP), molecular function (MF), and cellular component (CC) of given DEG group or for all groups in a directory, use the rule **go_analysis**.
 
-These rules call the scripts, allBoxPlots.py, xaBoxPlotsfinal.py, and global_XA.py, which use the Seaborn package in Python to generate plots to visualize these comparisons.
+Then, use the **go_summary** rule to create summary tables for each category (one for BP, MF, and CC separately) containing the top GO term for each group.
 
-## GO Analysis (YELLOW)
-To run gene ontology (GO) analysis to determine the enriched biological processes (BP), molecular function (MF), and cellular component (CC) of given gene set as a BED file for all BED files in directory, use the rule **go_analysis**.
+## Find motifs and binding regions for distinct and shared groups (purple)
+To perform *de novo* motif discovery and motif finding for a given transcription factor (TF) of interest, first use **meme_suite_prep** to generate the .fastq files for each group. These are needed to subsequently run MEME and/or FIMO.
 
-This rule calls the shell script, ./runGOall.sh, which uses: bed_to_geneListcsv.py and clusterProfiler.r.
+To run MEME analysis which returns the top three *de novo* motifs for each DEG group, use the rule **run_meme**.
 
-To create a summary tables (one for BP, one for MF, and on for CC) containing the top GO term for each of these categories from each gene cluster, use the rule **go_summary**.
+To run FIMO analysis which searches across group DEG members to find individual matches to the TF motif provided, use the rule **run_fimo**. This rule requires an input TF position weight matrix (PWM) for the TF of interest. XvsY then generates a summary of the FIMO results as a table showing the percentage of a each motif.
 
-## MEME and FIMO Analysis (RED)
-For running MEME and/or FIMO for motif analysis, run the rule **meme_suite_prep** to generate the fastq files for each of the gene clusters that is required to run both MEME and FIMO. This rule uses the shell script memesuitePrep.sh and the Python script meme_suite_prep_indiv_cluster.py.
+## Choosing between tests
+In the second stage, each group is compared intra and inter-context (yellow, Figure 1). Specifically, XvsY outputs: 1) global context chromosome level notch plots with a heatmap significance table highlighting significant expression differences across chromosomes; 2) expression fold-change violin plots for shared group differentially expressed genes; and 3) X vs. autosome violin plots for genes that are upregulated and downregulated within and between group (Figure 2).  For each type of plot, there are three significance measures that are output. For example, in the first global context chromosome level notch plot, the significance of the difference in expression between each pair of chromosomes is computed using 3 tests, the t-test, Kolmogorov-Smirnov (KS) test, and Mann-Whitney (MW) U test (also called Wilcoxon Rank-Sum test). The resulting p-values are displayed in a heatmap with the darker values indicating stronger significance. Due to the issue of multiple comparisons, all p-values are adjusted using the Benjamini-Hochberg (BH) correction method. The user has the choice of deciding which test best fits their hypothesis. 
 
-To run MEME analysis to find the top three de novo motifs in each of the gene sets, use the rule **run_meme**. This calls the script runMeme.sh.
+Specifically, the user is encouraged to examine the most appropriate test statistic or p-value summaries for their analysis when determining the fold-change differences between chromosomes. Briefly, the t-test provides an exact test to determine if the means of two i.i.d. normal distributions (with equal and unknown variances) are the same. When the normality assumption does not hold, a non-parametric alternative such as the MW or KS test will likely have better statistical power. Nevertheless, with differing variances between groups, a t-test could provide better type-1 error control, that is, control of false positives where one would reject a true null hypothesis. The appropriate test should be chosen based on the stated hypothesis.
 
-To run FIMO analysis to find the presence of CLAMP motifs in each of the gene sets and generate a summary of the FIMO results as a table showing the percentage of a each motif, use the rule **run_fimo**. This calls the script runFimo.sh and fimo_summary.py. NOTE: to run FIMO, a position weight matrix (PWM) is required for your transcription factor or protein of interest.
+Non-parametric tests do not typically test for mean differences, so both the MW and KS tests should be used carefully if mean differences are of primary interest to the user. The MW test is a nonparametric test of the null hypothesis that for any randomly selected values $i$ and $j$ from two populations, the probability $\Pr(i>j)=\Pr(j>i)$. The Kolmogorov-Smirnov test is a nonparametric test comparing the equality of two one-dimensional probability distributions. The null hypothesis states that the two sets of samples were drawn from the same probability distribution. Although the t-test and MW test are more commonly used in the analysis of biological data, they make assumptions about the distributions of the data and the sample sizes that may not always be justified. For example, while the MW test is sensitive to changes in the median, if the user is interested in  substantial differences in the shape or spread between two distributions, the KS test is more sensitive. For these reasons, XvsY includes several statistical tests and provides guidance regarding which test to use.
