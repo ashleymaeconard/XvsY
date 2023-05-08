@@ -1,0 +1,79 @@
+#! /bin/bash
+# Credits to CS0300 at Brown University for the Logic Behind this Code!
+
+clean=false
+arch="`uname -m`"
+container_name=xvsy-container
+tag=
+platform=
+while test "$#" -ne 0; do
+    if test "$1" = "-C" -o "$1" = "--clean"; then
+        clean=true
+        shift
+    elif test "$1" = "-a" -o "$1" = "--arm" -o "$1" = "--arm64"; then
+        if test "$arch" = "arm64" -o "$arch" = "aarch64"; then
+            platform=linux/arm64
+            shift
+        else
+            echo "\`xvsy-run-docker --arm\` only works on ARM64 hosts" 1>&2
+            exit 1
+        fi
+    elif test "$1" = "-x" -o "$1" = "--x86-64" -o "$1" = "--x86_64" -o "$1" = "--amd64"; then
+        platform=linux/amd64
+    else
+        armtext=
+        if test "$arch" = "arm64" -o "$arch" = "aarch64"; then
+            armtext=" [-a|--arm] [-x|--x86-64]"
+        fi
+        echo "Usage: xvsy-run-docker [-C|--clean]$armtext" 1>&2
+        exit 1
+    fi
+done
+
+if test -z "$platform" -a \( "$arch" = "arm64" -o "$arch" = "aarch64" \); then
+    platform=linux/arm64
+elif test -z "$platform"; then
+    platform=linux/amd64
+fi
+if test -z "$tag" -a "$platform" = linux/arm64; then
+    tag=xvsy:arm64
+elif test -z "$tag"; then
+    tag=xvsy:latest
+fi
+
+has_container() {
+    [ $( (docker ps -a | grep $container_name) | wc -l ) -gt 0 ]
+}
+
+remove_containers() {
+    echo "Removing all existing xvsy containers..."
+    docker ps -a -f name=xvsy --format "{{.ID}}" | while read line ; do docker rm --force $line ; done
+}
+
+start_container() {
+    echo "Entering container..."
+    docker start $container_name
+    docker exec -it $container_name /bin/bash
+}
+
+start_new_container() {
+    echo "Starting a new container..."
+    exec docker run -it \
+        --name $container_name \
+        --platform $platform \
+        --privileged \
+        -v "$dir/home":/home/ \
+        -w "/home/" \
+        $tag
+}
+
+## Determine Where the Correct Directory Is
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+if $clean; then
+    remove_containers && start_new_container
+elif has_container; then
+    start_container
+else
+    start_new_container
+fi
