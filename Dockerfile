@@ -30,7 +30,8 @@ RUN apt-get install -y --no-install-recommends \
  libproj-dev
 
 # Copy Necessary Python and R Requirement Files and Install
-COPY ./home ./home
+COPY /home/requirements.r /home/requirements.r
+COPY /home/requirements.txt /home/requirements.txt
 RUN Rscript /home/requirements.r
 RUN pip3 install -r /home/requirements.txt
 

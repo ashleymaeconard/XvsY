@@ -12,13 +12,13 @@
 
 ## Quick Start: 3 Steps
 
-  1. Activate XvsY environment using the following command:
+  1. Enter your XvsY Docker Container:
   ```
-  conda activate xvsy_environment
+  $ ./xvsy-run-docker
   ```
   2. Locate your data and metadata file directory (<PATH/TO/OUTPUT/DIRECTORY>). The data comprise of a 1) read-count matrix of genes by contexts and 2) associated metadata .csv file. See [Inputs](#inputs-for-xvsy) section for details.
 
-  3. Run this command within `XvsY/` directory to run all the way through XvsY (four boxes in Figure 1 above):
+  3. Run this command within `home/` directory to run all the way through XvsY (four boxes in Figure 1 above):
   ```
   snakemake --R --until <RULE> --cores 1 --config outdir=<PATH/TO/OUTPUT/DIRECTORY>
   ```
@@ -33,28 +33,39 @@ Conard, A. M., Nathoo, I., Tsiarli, M. A., Larschan, E. N. (2022). XvsY: a tool 
 We present XvsY, the first method to comprehensively analyze complex multi-dimensional experiments to identify distinct and shared signatures and associated mechanisms. This is a Snakemake pipeline command-line interface (CLI) tool that includes four stages: 1) identifying distinct and shared features through differential expression and/or intersections to form significant gene groups; 2) characterizing fold-change differences between experimental groups; 3) uncovering gene function; 4) discovering DNA sequence motifs for all groups (Figure 1). Should the user choose to run through the entire analysis, follow the [Quick Start](#quick-start-3-steps).
 
 
-## Installation
+## Installation with Docker
 
-Assuming you have [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html) installed, please follow the commands below:
+XvsY is run through a [Docker Container](https://www.docker.com/resources/what-container/). Docker allows for a uniform installation process regardless of the host's system architecture. Prior to completing the following steps, please install the Docker Desktop application and make sure it is running in the background! 
+
+[Brown University's CS0300](https://cs.brown.edu/courses/csci0300/2023/assign/labs/lab0.html) explains some of the benefits of using a Docker Container and similar installation steps depending on your computer. The following installation process is modeled off of the CS0300 Docker setup but installs a different set of packages! Additionally, XvsY only uses one Dockerfile. If you are running on a Windows machine, this website includes information on how to install/use WSL alongside Docker. There is also a general [Docker Debugging Guide](https://cs.brown.edu/courses/csci0300/2023/assets/docker.html) the course's staff developed that covers some of the frequent issues that users run into with Docker Containers. 
+
+Once you have installed Docker Desktop, please follow these steps:
 
 1. Clone the Github repository either locally or on a remote server.
 2. Navigate to the XvsY directory in terminal:
   ```bash
   $ cd /CLONED/REPO/PATH/XvsY/
   ```
-3. Activate your base conda environment (example using Miniconda):
+3. With Docker Desktop running, type the following command: 
   ```bash
-  $ source <DIR>/bin/activate
+  $ ./xvsy-build-docker
   ```
+  This step is creating a virtual Linux environment that has all the dependencies of XvsY! This step is expected to take around 30 minutes as it is installing all of the necessary Python and R packages and building them from scratch. Once this step is completed, you will be able to see the `xvsy` image in your Docker Desktop Image tab. 
+
 4. Type the following command in the current directory
   ```bash
-  $ conda env create -f xvsy_environment.yml
+  $ ./xvsy-run-docker
   ```
-5. Activate your XvsY environment:
+  When you run this step, you will see the following appear:
   ```bash
- $ conda activate xvsy_environment
+  Starting a new container...
+  xvsy-user@238679db6877:/home $
   ```
-6. Unzip the `dm6.fa` and `genes.gtf` files within the genomes directory, from the `XvsY/` directory.
+  The number after the `@` symbol is arbitrary and is a unique User ID that is recreated in every new container. The `/home/` directory from your local environment has actually been mounted into the Docker Container! Any changes/analyses that are performed in your container will also be made locally. This allows you to run all of your analysis in the container.
+
+  The next time you enter the container, the text will read `Entering container...`.
+
+5. Unzip the `dm6.fa` and `genes.gtf` files within the genomes directory, from the `XvsY/` directory.
 ```bash
 $ unzip genomes/dm6.zip -d genomes/
 $ rm -rf genomes/dm6.zip
@@ -62,10 +73,14 @@ $ unzip genomes/genesgtf.zip -d genomes/
 $ rm -rf genomes/genesgtf.zip
 ```
 
+**If you run into issues with Docker, please see the [Docker Appendix](#docker-appendix) below.** Regardless, it is recommended that you read this section so you are familiarized with the Docker set up!
+
 
 ## Inputs for XvsY
 
 XvsY requires a read-count matrix with the gene IDs as rows and context IDs (i.e. experiments, replicates and conditions in those experiments, and any time points or other conditions such as sex in those conditions) IDs as columns. Further, a metadata file is needed to specify the rows as the read-count matrix's context IDs, and the colums as context ID, condition, batch, and time point. Each row of the metadata file corresponds to a column in the read-count matrix.
+
+**IMPORTANT:** Because all of the analysis is performed within the container that is *mounted* locally, all of the files required for analysis must also be mounted. In particular, make sure to put all of your Input Files in the `xvsy_user` or `pwms` directories. You will notice that `/genomes/` and `config.yaml`, for example, are also mounted in the container so that you have access to the respective files during analysis. 
 
 ## Run XvsY
 
@@ -215,3 +230,29 @@ In the second stage, each group is compared intra and inter-context (yellow, Fig
 Specifically, the user is encouraged to examine the most appropriate test statistic or p-value summaries for their analysis when determining the fold-change differences between chromosomes. Briefly, the t-test provides an exact test to determine if the means of two i.i.d. normal distributions (with equal and unknown variances) are the same. When the normality assumption does not hold, a non-parametric alternative such as the MW or KS test will likely have better statistical power. Nevertheless, with differing variances between groups, a t-test could provide better type-1 error control, that is, control of false positives where one would reject a true null hypothesis. The appropriate test should be chosen based on the stated hypothesis.
 
 Non-parametric tests do not typically test for mean differences, so both the MW and KS tests should be used carefully if mean differences are of primary interest to the user. The MW test is a nonparametric test of the null hypothesis that for any randomly selected values *i* and *j* from two populations, the probability *Pr(i>j)=Pr(j>i)*. The Kolmogorov-Smirnov test is a nonparametric test comparing the equality of two one-dimensional probability distributions. The null hypothesis states that the two sets of samples were drawn from the same probability distribution. Although the t-test and MW test are more commonly used in the analysis of biological data, they make assumptions about the distributions of the data and the sample sizes that may not always be justified. For example, while the MW test is sensitive to changes in the median, if the user is interested in  substantial differences in the shape or spread between two distributions, the KS test is more sensitive. For these reasons, XvsY includes several statistical tests and provides guidance regarding which test to use.
+
+# Docker Appendix
+**Docker Daemon Not Running?** 
+
+This indicates that your Docker Desktop is not running in the background. Make sure to always have it open while your container is running! Then, retry building or running the image and you should be good to go. 
+
+**Why Docker?** 
+
+XvsY relies on a number of Python and R packages. On new M1 devices and in other computers, creating a conda environment is very tricky and often not possible. The Docker container allows anyone, regardless of their system architecture, access to this method. 
+
+**Moved/Renamed Your `home` Directory?**
+
+Your Docker Container will attempt to mount to the original `home` path, even after you rename or move the folder. So, to fix this, you will need to delete and recreate the container. This can be done by running the following: 
+```bash
+$ ./xvsy-run-docker --clean
+```
+This will allow you to enter a fresh container that is still mounted on your local directories! Note that this will wipe any additional packages you might have installed. Note that if you rename the home directory, this script will look to mount on the `home` directory within `XvsY` so it is not recommended to rename the folder! 
+
+**`vim` or Other Common Packages Not Found?**
+
+Because this Docker Container is built from a basic Ubuntu Linux image, many packages rae not included. `sudo apt` is set up in the container, so feel free to install your desired packages as follows (with an example for `vim`):
+```bash
+$ sudo apt update
+$ sudo apt install <package>
+$ #ex: sudo apt install vim
+```
